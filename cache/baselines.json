@@ -1,0 +1,3309 @@
+{
+ "grid_stats": {
+  "expected": 3690,
+  "ok": 3690,
+  "failed": 0,
+  "missing": 0,
+  "complete": true,
+  "coverage": 1.0
+ },
+ "partial": false,
+ "results": {
+  "always_bullish": {
+   "summary": {
+    "label": "always_bullish",
+    "dates": 90,
+    "mean_rank_correlation": null,
+    "rank_correlation_t": null,
+    "mean_spread_pct": null,
+    "dates_with_spread": 0,
+    "spread_hit_rate": null
+   },
+   "describe": "BULLISH on everything",
+   "dates": [
+    {
+     "cutoff": "2019-01-02",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-01-31",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-03-05",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-04-05",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-05-10",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-06-11",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-07-10",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-08-08",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-09-12",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-10-15",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-11-18",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-12-17",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-01-16",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-02-14",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-03-18",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-04-22",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-05-22",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-06-23",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-07-22",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-08-20",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-09-18",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-10-20",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-11-19",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-12-21",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-01-20",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-02-19",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-03-23",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-04-27",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-05-27",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-06-25",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-07-27",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-08-26",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-09-27",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-10-27",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-11-29",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-12-28",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-01-27",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-02-25",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-03-30",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-05-02",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-06-01",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-06-30",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-07-29",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-09-01",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-09-30",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-11-02",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-12-02",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-01-02",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-02-01",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-03-02",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-04-05",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-05-09",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-06-07",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-07-07",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-08-07",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-09-06",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-10-09",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-11-08",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-12-11",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-01-10",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-02-12",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-03-13",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-04-16",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-05-17",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-06-19",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-07-19",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-08-20",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-09-18",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-10-18",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-11-19",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-12-19",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-01-20",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-02-17",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-03-20",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-04-24",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-05-26",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-06-24",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-07-23",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-08-22",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-09-23",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-10-24",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-11-25",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-12-24",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-01-27",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-02-25",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-03-30",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-05-04",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-06-03",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-07-03",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-08-03",
+     "n": 41,
+     "rank_correlation": null,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    }
+   ]
+  },
+  "random": {
+   "summary": {
+    "label": "random",
+    "dates": 90,
+    "mean_rank_correlation": 0.0123,
+    "rank_correlation_t": 0.72,
+    "mean_spread_pct": 0.211,
+    "dates_with_spread": 90,
+    "spread_hit_rate": 0.533
+   },
+   "describe": "seeded coin flip",
+   "dates": [
+    {
+     "cutoff": "2019-01-02",
+     "n": 41,
+     "rank_correlation": -0.20449583689247117,
+     "long_short_spread": -5.395310262359851,
+     "n_bullish": 13,
+     "n_bearish": 13,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2019-01-31",
+     "n": 41,
+     "rank_correlation": -0.15198966655681345,
+     "long_short_spread": -2.0616284041530237,
+     "n_bullish": 14,
+     "n_bearish": 12,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2019-03-05",
+     "n": 41,
+     "rank_correlation": 0.1498896225717572,
+     "long_short_spread": 1.9399262570729947,
+     "n_bullish": 15,
+     "n_bearish": 16,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2019-04-05",
+     "n": 41,
+     "rank_correlation": 0.14687285925178695,
+     "long_short_spread": 1.8934230058310932,
+     "n_bullish": 20,
+     "n_bearish": 14,
+     "n_neutral": 7
+    },
+    {
+     "cutoff": "2019-05-10",
+     "n": 41,
+     "rank_correlation": -0.03365121366584969,
+     "long_short_spread": -0.785469007349386,
+     "n_bullish": 13,
+     "n_bearish": 13,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2019-06-11",
+     "n": 41,
+     "rank_correlation": 0.01162295460388936,
+     "long_short_spread": 0.7200100174461141,
+     "n_bullish": 16,
+     "n_bearish": 10,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2019-07-10",
+     "n": 41,
+     "rank_correlation": -0.14021709507625668,
+     "long_short_spread": -3.086653055375714,
+     "n_bullish": 13,
+     "n_bearish": 10,
+     "n_neutral": 18
+    },
+    {
+     "cutoff": "2019-08-08",
+     "n": 41,
+     "rank_correlation": 0.09426202056848007,
+     "long_short_spread": 0.9742998478703727,
+     "n_bullish": 11,
+     "n_bearish": 13,
+     "n_neutral": 17
+    },
+    {
+     "cutoff": "2019-09-12",
+     "n": 41,
+     "rank_correlation": 0.31045485146966884,
+     "long_short_spread": 6.005801072309959,
+     "n_bullish": 12,
+     "n_bearish": 15,
+     "n_neutral": 14
+    },
+    {
+     "cutoff": "2019-10-15",
+     "n": 41,
+     "rank_correlation": -0.151777994111802,
+     "long_short_spread": -2.90646074057757,
+     "n_bullish": 10,
+     "n_bearish": 20,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2019-11-18",
+     "n": 41,
+     "rank_correlation": 0.07267020189865842,
+     "long_short_spread": 1.0198854535649253,
+     "n_bullish": 15,
+     "n_bearish": 17,
+     "n_neutral": 9
+    },
+    {
+     "cutoff": "2019-12-17",
+     "n": 41,
+     "rank_correlation": -0.0033350207134122045,
+     "long_short_spread": 0.6811112292546446,
+     "n_bullish": 16,
+     "n_bearish": 13,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2020-01-16",
+     "n": 41,
+     "rank_correlation": 0.02062915133424796,
+     "long_short_spread": -0.11286333693512396,
+     "n_bullish": 15,
+     "n_bearish": 14,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2020-02-14",
+     "n": 41,
+     "rank_correlation": 0.04486609146686216,
+     "long_short_spread": -1.0352187508664983,
+     "n_bullish": 12,
+     "n_bearish": 15,
+     "n_neutral": 14
+    },
+    {
+     "cutoff": "2020-03-18",
+     "n": 41,
+     "rank_correlation": -0.17334837025392125,
+     "long_short_spread": -2.6233181846831917,
+     "n_bullish": 19,
+     "n_bearish": 12,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2020-04-22",
+     "n": 41,
+     "rank_correlation": 0.10194507038513559,
+     "long_short_spread": 2.5974016472790153,
+     "n_bullish": 18,
+     "n_bearish": 15,
+     "n_neutral": 8
+    },
+    {
+     "cutoff": "2020-05-22",
+     "n": 41,
+     "rank_correlation": 0.08856555684583517,
+     "long_short_spread": 3.3507666166232983,
+     "n_bullish": 13,
+     "n_bearish": 15,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2020-06-23",
+     "n": 41,
+     "rank_correlation": -0.021029158387349176,
+     "long_short_spread": -0.29255719285625403,
+     "n_bullish": 16,
+     "n_bearish": 12,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2020-07-22",
+     "n": 41,
+     "rank_correlation": -0.18840981717308147,
+     "long_short_spread": -1.613225252476604,
+     "n_bullish": 15,
+     "n_bearish": 13,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2020-08-20",
+     "n": 41,
+     "rank_correlation": 0.3012266829449249,
+     "long_short_spread": 5.752959231261938,
+     "n_bullish": 15,
+     "n_bearish": 15,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2020-09-18",
+     "n": 41,
+     "rank_correlation": 0.16424977013555106,
+     "long_short_spread": 2.5403508205151826,
+     "n_bullish": 16,
+     "n_bearish": 12,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2020-10-20",
+     "n": 41,
+     "rank_correlation": -0.16448805355424223,
+     "long_short_spread": -3.9109426850296245,
+     "n_bullish": 16,
+     "n_bearish": 15,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2020-11-19",
+     "n": 41,
+     "rank_correlation": 0.10018551970847776,
+     "long_short_spread": 2.39086756195221,
+     "n_bullish": 15,
+     "n_bearish": 14,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2020-12-21",
+     "n": 41,
+     "rank_correlation": 0.1769741806794926,
+     "long_short_spread": 3.193865016101075,
+     "n_bullish": 11,
+     "n_bearish": 14,
+     "n_neutral": 16
+    },
+    {
+     "cutoff": "2021-01-20",
+     "n": 41,
+     "rank_correlation": 0.20474689275303246,
+     "long_short_spread": 4.56264235535793,
+     "n_bullish": 9,
+     "n_bearish": 17,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2021-02-19",
+     "n": 41,
+     "rank_correlation": -0.2922417520308418,
+     "long_short_spread": -4.540495806064859,
+     "n_bullish": 18,
+     "n_bearish": 11,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2021-03-23",
+     "n": 41,
+     "rank_correlation": 0.18555563669407374,
+     "long_short_spread": 5.986809011094081,
+     "n_bullish": 15,
+     "n_bearish": 15,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2021-04-27",
+     "n": 41,
+     "rank_correlation": -0.05962757266582668,
+     "long_short_spread": 2.5977979034849765,
+     "n_bullish": 7,
+     "n_bearish": 15,
+     "n_neutral": 19
+    },
+    {
+     "cutoff": "2021-05-27",
+     "n": 41,
+     "rank_correlation": 0.21624093939104086,
+     "long_short_spread": 2.729356146050114,
+     "n_bullish": 7,
+     "n_bearish": 24,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2021-06-25",
+     "n": 41,
+     "rank_correlation": 0.07785551189961136,
+     "long_short_spread": 0.06996230316716229,
+     "n_bullish": 15,
+     "n_bearish": 11,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2021-07-27",
+     "n": 41,
+     "rank_correlation": -0.00841817386285455,
+     "long_short_spread": 1.857586540925856,
+     "n_bullish": 12,
+     "n_bearish": 14,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2021-08-26",
+     "n": 41,
+     "rank_correlation": 0.14528601903252306,
+     "long_short_spread": 2.252687982130791,
+     "n_bullish": 12,
+     "n_bearish": 19,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2021-09-27",
+     "n": 41,
+     "rank_correlation": -0.20582897631704802,
+     "long_short_spread": -2.995956996174856,
+     "n_bullish": 14,
+     "n_bearish": 15,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2021-10-27",
+     "n": 41,
+     "rank_correlation": -0.0371484251688415,
+     "long_short_spread": -0.1756260642749874,
+     "n_bullish": 12,
+     "n_bearish": 13,
+     "n_neutral": 16
+    },
+    {
+     "cutoff": "2021-11-29",
+     "n": 41,
+     "rank_correlation": -0.14418837986048338,
+     "long_short_spread": -0.9792390970694664,
+     "n_bullish": 20,
+     "n_bearish": 9,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2021-12-28",
+     "n": 41,
+     "rank_correlation": -0.021195010542025106,
+     "long_short_spread": -2.590180389676705,
+     "n_bullish": 11,
+     "n_bearish": 13,
+     "n_neutral": 17
+    },
+    {
+     "cutoff": "2022-01-27",
+     "n": 41,
+     "rank_correlation": -0.18164495876805728,
+     "long_short_spread": -2.0558903852764634,
+     "n_bullish": 11,
+     "n_bearish": 13,
+     "n_neutral": 17
+    },
+    {
+     "cutoff": "2022-02-25",
+     "n": 41,
+     "rank_correlation": -0.055629893299223014,
+     "long_short_spread": -0.05468779155667303,
+     "n_bullish": 10,
+     "n_bearish": 11,
+     "n_neutral": 20
+    },
+    {
+     "cutoff": "2022-03-30",
+     "n": 41,
+     "rank_correlation": -0.14870303524764036,
+     "long_short_spread": -1.613151149464414,
+     "n_bullish": 9,
+     "n_bearish": 17,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2022-05-02",
+     "n": 41,
+     "rank_correlation": 0.05986545392310671,
+     "long_short_spread": 1.794714890132596,
+     "n_bullish": 14,
+     "n_bearish": 14,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2022-06-01",
+     "n": 41,
+     "rank_correlation": -0.026272103044513096,
+     "long_short_spread": -0.8352119027366403,
+     "n_bullish": 14,
+     "n_bearish": 12,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2022-06-30",
+     "n": 41,
+     "rank_correlation": -0.1846418637289287,
+     "long_short_spread": -6.420355576085608,
+     "n_bullish": 9,
+     "n_bearish": 18,
+     "n_neutral": 14
+    },
+    {
+     "cutoff": "2022-07-29",
+     "n": 41,
+     "rank_correlation": -0.17425133542150928,
+     "long_short_spread": -1.5156224953147133,
+     "n_bullish": 10,
+     "n_bearish": 16,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2022-09-01",
+     "n": 41,
+     "rank_correlation": -0.02129325283432531,
+     "long_short_spread": -0.3225268107311663,
+     "n_bullish": 16,
+     "n_bearish": 10,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2022-09-30",
+     "n": 41,
+     "rank_correlation": 0.057436467842099076,
+     "long_short_spread": 1.234551871885765,
+     "n_bullish": 13,
+     "n_bearish": 16,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2022-11-02",
+     "n": 41,
+     "rank_correlation": 0.11048067879087707,
+     "long_short_spread": 2.0805701447701974,
+     "n_bullish": 11,
+     "n_bearish": 15,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2022-12-02",
+     "n": 41,
+     "rank_correlation": -0.1190077110465488,
+     "long_short_spread": -0.6618258169731974,
+     "n_bullish": 15,
+     "n_bearish": 11,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2023-01-02",
+     "n": 41,
+     "rank_correlation": 0.09648522350502521,
+     "long_short_spread": 2.4040697955095522,
+     "n_bullish": 15,
+     "n_bearish": 14,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2023-02-01",
+     "n": 41,
+     "rank_correlation": 0.024260170985957494,
+     "long_short_spread": 0.5939811388131198,
+     "n_bullish": 12,
+     "n_bearish": 18,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2023-03-02",
+     "n": 41,
+     "rank_correlation": -0.17213890067530802,
+     "long_short_spread": -1.7543989776256699,
+     "n_bullish": 13,
+     "n_bearish": 15,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2023-04-05",
+     "n": 41,
+     "rank_correlation": -0.14499876943662815,
+     "long_short_spread": -1.199253104324129,
+     "n_bullish": 14,
+     "n_bearish": 17,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2023-05-09",
+     "n": 41,
+     "rank_correlation": -0.044311047036344274,
+     "long_short_spread": -1.8226521152568989,
+     "n_bullish": 15,
+     "n_bearish": 12,
+     "n_neutral": 14
+    },
+    {
+     "cutoff": "2023-06-07",
+     "n": 41,
+     "rank_correlation": 0.08892292057522212,
+     "long_short_spread": 0.997985435045607,
+     "n_bullish": 9,
+     "n_bearish": 17,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2023-07-07",
+     "n": 41,
+     "rank_correlation": -0.3792791360151861,
+     "long_short_spread": -6.031873499912942,
+     "n_bullish": 17,
+     "n_bearish": 13,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2023-08-07",
+     "n": 41,
+     "rank_correlation": -0.08872455026414557,
+     "long_short_spread": -0.46180026600792135,
+     "n_bullish": 17,
+     "n_bearish": 12,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2023-09-06",
+     "n": 41,
+     "rank_correlation": 0.06327275409057043,
+     "long_short_spread": -0.4030816901313392,
+     "n_bullish": 13,
+     "n_bearish": 16,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2023-10-09",
+     "n": 41,
+     "rank_correlation": 0.20090465165187682,
+     "long_short_spread": 2.922487746093079,
+     "n_bullish": 14,
+     "n_bearish": 11,
+     "n_neutral": 16
+    },
+    {
+     "cutoff": "2023-11-08",
+     "n": 41,
+     "rank_correlation": -0.012234437584224642,
+     "long_short_spread": 0.5476861229857342,
+     "n_bullish": 11,
+     "n_bearish": 15,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2023-12-11",
+     "n": 41,
+     "rank_correlation": -0.13127175098780836,
+     "long_short_spread": -1.025068207859769,
+     "n_bullish": 14,
+     "n_bearish": 9,
+     "n_neutral": 18
+    },
+    {
+     "cutoff": "2024-01-10",
+     "n": 41,
+     "rank_correlation": 0.13274769760531513,
+     "long_short_spread": 1.5279338622304401,
+     "n_bullish": 11,
+     "n_bearish": 17,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2024-02-12",
+     "n": 41,
+     "rank_correlation": 0.19414161730297896,
+     "long_short_spread": 1.913943621473065,
+     "n_bullish": 13,
+     "n_bearish": 13,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2024-03-13",
+     "n": 41,
+     "rank_correlation": 0.36220344630682316,
+     "long_short_spread": 6.754743952279763,
+     "n_bullish": 16,
+     "n_bearish": 11,
+     "n_neutral": 14
+    },
+    {
+     "cutoff": "2024-04-16",
+     "n": 41,
+     "rank_correlation": 0.3431279126232893,
+     "long_short_spread": 4.812649162891595,
+     "n_bullish": 7,
+     "n_bearish": 17,
+     "n_neutral": 17
+    },
+    {
+     "cutoff": "2024-05-17",
+     "n": 41,
+     "rank_correlation": 0.14686734281498884,
+     "long_short_spread": 1.8260917174457325,
+     "n_bullish": 11,
+     "n_bearish": 12,
+     "n_neutral": 18
+    },
+    {
+     "cutoff": "2024-06-19",
+     "n": 41,
+     "rank_correlation": 0.15016857348225054,
+     "long_short_spread": 2.552638257379604,
+     "n_bullish": 15,
+     "n_bearish": 16,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2024-07-19",
+     "n": 41,
+     "rank_correlation": -0.08892292057522212,
+     "long_short_spread": -1.606595059491671,
+     "n_bullish": 9,
+     "n_bearish": 17,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2024-08-20",
+     "n": 41,
+     "rank_correlation": 0.17861028791874065,
+     "long_short_spread": 2.6620998479597913,
+     "n_bullish": 13,
+     "n_bearish": 13,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2024-09-18",
+     "n": 41,
+     "rank_correlation": 0.03493750403632245,
+     "long_short_spread": 0.7783198450401073,
+     "n_bullish": 10,
+     "n_bearish": 18,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2024-10-18",
+     "n": 41,
+     "rank_correlation": 0.13349138218573706,
+     "long_short_spread": 1.885220152387447,
+     "n_bullish": 13,
+     "n_bearish": 17,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2024-11-19",
+     "n": 41,
+     "rank_correlation": 0.08723448299639383,
+     "long_short_spread": 0.21388739402707901,
+     "n_bullish": 14,
+     "n_bearish": 15,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2024-12-19",
+     "n": 41,
+     "rank_correlation": 0.014325661841037573,
+     "long_short_spread": 0.4163882337685887,
+     "n_bullish": 9,
+     "n_bearish": 18,
+     "n_neutral": 14
+    },
+    {
+     "cutoff": "2025-01-20",
+     "n": 41,
+     "rank_correlation": -0.020380682137519028,
+     "long_short_spread": -1.036797305449403,
+     "n_bullish": 12,
+     "n_bearish": 16,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2025-02-17",
+     "n": 41,
+     "rank_correlation": -0.2512747218235699,
+     "long_short_spread": -8.129961077809199,
+     "n_bullish": 13,
+     "n_bearish": 15,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2025-03-20",
+     "n": 41,
+     "rank_correlation": -0.13073499338454753,
+     "long_short_spread": -2.1790833682629716,
+     "n_bullish": 16,
+     "n_bearish": 10,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2025-04-24",
+     "n": 41,
+     "rank_correlation": 0.11408059894660853,
+     "long_short_spread": 2.123103733388046,
+     "n_bullish": 10,
+     "n_bearish": 17,
+     "n_neutral": 14
+    },
+    {
+     "cutoff": "2025-05-26",
+     "n": 41,
+     "rank_correlation": 0.35971582733102375,
+     "long_short_spread": 3.0045161259385593,
+     "n_bullish": 23,
+     "n_bearish": 9,
+     "n_neutral": 9
+    },
+    {
+     "cutoff": "2025-06-24",
+     "n": 41,
+     "rank_correlation": 0.23561636075484105,
+     "long_short_spread": 1.4999098254737755,
+     "n_bullish": 14,
+     "n_bearish": 12,
+     "n_neutral": 15
+    },
+    {
+     "cutoff": "2025-07-23",
+     "n": 41,
+     "rank_correlation": -0.18085197694374333,
+     "long_short_spread": -1.4781982491616512,
+     "n_bullish": 12,
+     "n_bearish": 15,
+     "n_neutral": 14
+    },
+    {
+     "cutoff": "2025-08-22",
+     "n": 41,
+     "rank_correlation": -0.05259138388116997,
+     "long_short_spread": -0.624531317897373,
+     "n_bullish": 16,
+     "n_bearish": 14,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2025-09-23",
+     "n": 41,
+     "rank_correlation": -0.1448832874720002,
+     "long_short_spread": -1.750865792495022,
+     "n_bullish": 10,
+     "n_bearish": 20,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2025-10-24",
+     "n": 41,
+     "rank_correlation": 0.039186493382593404,
+     "long_short_spread": 0.9015628837069886,
+     "n_bullish": 16,
+     "n_bearish": 12,
+     "n_neutral": 13
+    },
+    {
+     "cutoff": "2025-11-25",
+     "n": 41,
+     "rank_correlation": -0.0778546315406848,
+     "long_short_spread": -0.4061355622290648,
+     "n_bullish": 12,
+     "n_bearish": 17,
+     "n_neutral": 12
+    },
+    {
+     "cutoff": "2025-12-24",
+     "n": 41,
+     "rank_correlation": -0.0030731916450923115,
+     "long_short_spread": 0.9172460687510222,
+     "n_bullish": 17,
+     "n_bearish": 14,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2026-01-27",
+     "n": 41,
+     "rank_correlation": -0.429957947269636,
+     "long_short_spread": -10.446365045718213,
+     "n_bullish": 13,
+     "n_bearish": 6,
+     "n_neutral": 22
+    },
+    {
+     "cutoff": "2026-02-25",
+     "n": 41,
+     "rank_correlation": 0.02598243845396227,
+     "long_short_spread": 0.07842417317585237,
+     "n_bullish": 17,
+     "n_bearish": 14,
+     "n_neutral": 10
+    },
+    {
+     "cutoff": "2026-03-30",
+     "n": 41,
+     "rank_correlation": -0.04141279369107654,
+     "long_short_spread": -0.801107629316494,
+     "n_bullish": 9,
+     "n_bearish": 12,
+     "n_neutral": 20
+    },
+    {
+     "cutoff": "2026-05-04",
+     "n": 41,
+     "rank_correlation": 0.02603302963493131,
+     "long_short_spread": 0.5048406754389743,
+     "n_bullish": 18,
+     "n_bearish": 12,
+     "n_neutral": 11
+    },
+    {
+     "cutoff": "2026-06-03",
+     "n": 41,
+     "rank_correlation": 0.3339861838285424,
+     "long_short_spread": 5.639840288397714,
+     "n_bullish": 7,
+     "n_bearish": 16,
+     "n_neutral": 18
+    },
+    {
+     "cutoff": "2026-07-03",
+     "n": 41,
+     "rank_correlation": 0.13740692129913223,
+     "long_short_spread": 3.1962105518197856,
+     "n_bullish": 12,
+     "n_bearish": 12,
+     "n_neutral": 17
+    },
+    {
+     "cutoff": "2026-08-03",
+     "n": 41,
+     "rank_correlation": 0.0534284774884738,
+     "long_short_spread": -0.16992970331258705,
+     "n_bullish": 17,
+     "n_bearish": 15,
+     "n_neutral": 9
+    }
+   ]
+  },
+  "momentum": {
+   "summary": {
+    "label": "momentum",
+    "dates": 90,
+    "mean_rank_correlation": -0.0467,
+    "rank_correlation_t": -1.88,
+    "mean_spread_pct": -0.916,
+    "dates_with_spread": 89,
+    "spread_hit_rate": 0.382
+   },
+   "describe": "trailing 1-month return",
+   "dates": [
+    {
+     "cutoff": "2019-01-02",
+     "n": 41,
+     "rank_correlation": 0.13693379790940766,
+     "long_short_spread": -1.9322000291793668,
+     "n_bullish": 16,
+     "n_bearish": 25,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-01-31",
+     "n": 41,
+     "rank_correlation": -0.44163763066202083,
+     "long_short_spread": -3.2018320054720992,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-03-05",
+     "n": 41,
+     "rank_correlation": -0.1860627177700348,
+     "long_short_spread": 0.5847206267192266,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-04-05",
+     "n": 41,
+     "rank_correlation": -0.3198606271777003,
+     "long_short_spread": -2.7726515969896535,
+     "n_bullish": 31,
+     "n_bearish": 10,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-05-10",
+     "n": 41,
+     "rank_correlation": -0.18501742160278742,
+     "long_short_spread": -3.490418854691729,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-06-11",
+     "n": 41,
+     "rank_correlation": -0.01916376306620209,
+     "long_short_spread": -0.6247112045105574,
+     "n_bullish": 35,
+     "n_bearish": 6,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-07-10",
+     "n": 41,
+     "rank_correlation": -0.05923344947735191,
+     "long_short_spread": -2.846275724277621,
+     "n_bullish": 5,
+     "n_bearish": 36,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-08-08",
+     "n": 41,
+     "rank_correlation": 0.08013937282229965,
+     "long_short_spread": -0.3461800621084722,
+     "n_bullish": 11,
+     "n_bearish": 30,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-09-12",
+     "n": 41,
+     "rank_correlation": 0.252787456445993,
+     "long_short_spread": 4.1898356086697905,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-10-15",
+     "n": 41,
+     "rank_correlation": -0.21271777003484318,
+     "long_short_spread": -4.213335437993237,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-11-18",
+     "n": 41,
+     "rank_correlation": 0.4885017421602787,
+     "long_short_spread": 4.364910140197371,
+     "n_bullish": 27,
+     "n_bearish": 14,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-12-17",
+     "n": 41,
+     "rank_correlation": -0.18031358885017418,
+     "long_short_spread": -0.5970435574536932,
+     "n_bullish": 24,
+     "n_bearish": 17,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-01-16",
+     "n": 41,
+     "rank_correlation": 0.12456445993031356,
+     "long_short_spread": 5.663283374872777,
+     "n_bullish": 29,
+     "n_bearish": 12,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-02-14",
+     "n": 41,
+     "rank_correlation": -0.012195121951219511,
+     "long_short_spread": -0.535671605087316,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-03-18",
+     "n": 41,
+     "rank_correlation": 0.5520905923344946,
+     "long_short_spread": null,
+     "n_bullish": 0,
+     "n_bearish": 41,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-04-22",
+     "n": 41,
+     "rank_correlation": 0.2738675958188153,
+     "long_short_spread": 4.064794561597644,
+     "n_bullish": 23,
+     "n_bearish": 18,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-05-22",
+     "n": 41,
+     "rank_correlation": -0.39651567944250865,
+     "long_short_spread": -8.71954006302845,
+     "n_bullish": 22,
+     "n_bearish": 19,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-06-23",
+     "n": 41,
+     "rank_correlation": 0.03031358885017421,
+     "long_short_spread": -0.9135159936997623,
+     "n_bullish": 39,
+     "n_bearish": 2,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-07-22",
+     "n": 41,
+     "rank_correlation": -0.1562717770034843,
+     "long_short_spread": 1.0228230016429327,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-08-20",
+     "n": 41,
+     "rank_correlation": 0.20226480836236932,
+     "long_short_spread": 4.441365779133012,
+     "n_bullish": 29,
+     "n_bearish": 12,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-09-18",
+     "n": 41,
+     "rank_correlation": 0.3156794425087108,
+     "long_short_spread": 4.271323191350373,
+     "n_bullish": 22,
+     "n_bearish": 19,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-10-20",
+     "n": 41,
+     "rank_correlation": -0.08135888501742158,
+     "long_short_spread": 0.6190552892588954,
+     "n_bullish": 23,
+     "n_bearish": 18,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-11-19",
+     "n": 41,
+     "rank_correlation": -0.009581881533101045,
+     "long_short_spread": 1.214758372181076,
+     "n_bullish": 30,
+     "n_bearish": 11,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-12-21",
+     "n": 41,
+     "rank_correlation": -0.2766550522648083,
+     "long_short_spread": -2.501844910752176,
+     "n_bullish": 34,
+     "n_bearish": 7,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-01-20",
+     "n": 41,
+     "rank_correlation": 0.11428571428571427,
+     "long_short_spread": 3.9830980445081865,
+     "n_bullish": 37,
+     "n_bearish": 4,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-02-19",
+     "n": 41,
+     "rank_correlation": -0.20069686411149823,
+     "long_short_spread": -3.4704229366546278,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-03-23",
+     "n": 41,
+     "rank_correlation": -0.02073170731707317,
+     "long_short_spread": 1.0218062279834987,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-04-27",
+     "n": 41,
+     "rank_correlation": -0.16341463414634144,
+     "long_short_spread": -1.2666504515682853,
+     "n_bullish": 14,
+     "n_bearish": 27,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-05-27",
+     "n": 41,
+     "rank_correlation": -0.044773519163763056,
+     "long_short_spread": -3.1830309264210275,
+     "n_bullish": 37,
+     "n_bearish": 4,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-06-25",
+     "n": 41,
+     "rank_correlation": -0.04564459930313588,
+     "long_short_spread": -0.7953093348377579,
+     "n_bullish": 31,
+     "n_bearish": 10,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-07-27",
+     "n": 41,
+     "rank_correlation": 0.06010452961672473,
+     "long_short_spread": -0.6486579815374305,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-08-26",
+     "n": 41,
+     "rank_correlation": -0.216376306620209,
+     "long_short_spread": -2.3808276123049863,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-09-27",
+     "n": 41,
+     "rank_correlation": -0.003310104529616724,
+     "long_short_spread": -0.6928475291504619,
+     "n_bullish": 36,
+     "n_bearish": 5,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-10-27",
+     "n": 41,
+     "rank_correlation": -0.34006968641114976,
+     "long_short_spread": -2.2654352036202114,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-11-29",
+     "n": 41,
+     "rank_correlation": 0.09738675958188152,
+     "long_short_spread": -1.0377261092611307,
+     "n_bullish": 7,
+     "n_bearish": 34,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-12-28",
+     "n": 41,
+     "rank_correlation": -0.4094076655052264,
+     "long_short_spread": -6.612949501047334,
+     "n_bullish": 25,
+     "n_bearish": 16,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-01-27",
+     "n": 41,
+     "rank_correlation": -0.2538327526132404,
+     "long_short_spread": -3.1820674349182623,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-02-25",
+     "n": 41,
+     "rank_correlation": 0.21341463414634143,
+     "long_short_spread": 3.647552954576898,
+     "n_bullish": 12,
+     "n_bearish": 29,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-03-30",
+     "n": 41,
+     "rank_correlation": -0.22125435540069682,
+     "long_short_spread": -7.207239419476631,
+     "n_bullish": 29,
+     "n_bearish": 12,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-05-02",
+     "n": 41,
+     "rank_correlation": 0.25783972125435534,
+     "long_short_spread": 3.500607087039398,
+     "n_bullish": 23,
+     "n_bearish": 18,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-06-01",
+     "n": 41,
+     "rank_correlation": 0.4954703832752613,
+     "long_short_spread": 5.300357769105302,
+     "n_bullish": 12,
+     "n_bearish": 29,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-06-30",
+     "n": 41,
+     "rank_correlation": -0.5439024390243902,
+     "long_short_spread": -9.570910095935517,
+     "n_bullish": 7,
+     "n_bearish": 34,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-07-29",
+     "n": 41,
+     "rank_correlation": 0.1578397212543554,
+     "long_short_spread": 0.7596899225758271,
+     "n_bullish": 36,
+     "n_bearish": 5,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-09-01",
+     "n": 41,
+     "rank_correlation": 0.12038327526132402,
+     "long_short_spread": -2.322768735326517,
+     "n_bullish": 32,
+     "n_bearish": 9,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-09-30",
+     "n": 41,
+     "rank_correlation": -0.26132404181184665,
+     "long_short_spread": -3.9942088332527654,
+     "n_bullish": 11,
+     "n_bearish": 30,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-11-02",
+     "n": 41,
+     "rank_correlation": 0.07386759581881532,
+     "long_short_spread": -1.5984125570049041,
+     "n_bullish": 35,
+     "n_bearish": 6,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-12-02",
+     "n": 41,
+     "rank_correlation": -0.03850174216027874,
+     "long_short_spread": 0.6891924284482833,
+     "n_bullish": 27,
+     "n_bearish": 14,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-01-02",
+     "n": 41,
+     "rank_correlation": -0.19320557491289195,
+     "long_short_spread": -3.015153245189995,
+     "n_bullish": 9,
+     "n_bearish": 32,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-02-01",
+     "n": 41,
+     "rank_correlation": -0.36167247386759577,
+     "long_short_spread": -2.8667415665816507,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-03-02",
+     "n": 41,
+     "rank_correlation": 0.04285714285714285,
+     "long_short_spread": 0.5034131515961497,
+     "n_bullish": 18,
+     "n_bearish": 23,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-04-05",
+     "n": 41,
+     "rank_correlation": -0.3031358885017421,
+     "long_short_spread": -1.9699683707554563,
+     "n_bullish": 23,
+     "n_bearish": 18,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-05-09",
+     "n": 41,
+     "rank_correlation": 0.11045296167247386,
+     "long_short_spread": 0.11328803215424754,
+     "n_bullish": 34,
+     "n_bearish": 7,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-06-07",
+     "n": 41,
+     "rank_correlation": -0.02909407665505226,
+     "long_short_spread": 0.4531071441707306,
+     "n_bullish": 31,
+     "n_bearish": 10,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-07-07",
+     "n": 41,
+     "rank_correlation": -0.11550522648083622,
+     "long_short_spread": 0.4780635966958475,
+     "n_bullish": 33,
+     "n_bearish": 8,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-08-07",
+     "n": 41,
+     "rank_correlation": 0.1336236933797909,
+     "long_short_spread": 0.4600140871177709,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-09-06",
+     "n": 41,
+     "rank_correlation": 0.18867595818815328,
+     "long_short_spread": 1.0951648790208155,
+     "n_bullish": 24,
+     "n_bearish": 17,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-10-09",
+     "n": 41,
+     "rank_correlation": -0.01655052264808362,
+     "long_short_spread": -0.2693560644147224,
+     "n_bullish": 19,
+     "n_bearish": 22,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-11-08",
+     "n": 41,
+     "rank_correlation": 0.11463414634146339,
+     "long_short_spread": 1.8027285543959835,
+     "n_bullish": 24,
+     "n_bearish": 17,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-12-11",
+     "n": 41,
+     "rank_correlation": -0.05609756097560975,
+     "long_short_spread": -3.085338704590864,
+     "n_bullish": 38,
+     "n_bearish": 3,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-01-10",
+     "n": 41,
+     "rank_correlation": 0.30505226480836234,
+     "long_short_spread": 2.708819790948885,
+     "n_bullish": 30,
+     "n_bearish": 11,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-02-12",
+     "n": 41,
+     "rank_correlation": -0.08693379790940765,
+     "long_short_spread": -0.7624188459919969,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-03-13",
+     "n": 41,
+     "rank_correlation": 0.07038327526132403,
+     "long_short_spread": -1.1125238656641254,
+     "n_bullish": 22,
+     "n_bearish": 19,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-04-16",
+     "n": 41,
+     "rank_correlation": 0.13937282229965153,
+     "long_short_spread": 0.9831306884612494,
+     "n_bullish": 23,
+     "n_bearish": 18,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-05-17",
+     "n": 41,
+     "rank_correlation": 0.13780487804878047,
+     "long_short_spread": 1.4380329478405227,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-06-19",
+     "n": 41,
+     "rank_correlation": -0.3693379790940766,
+     "long_short_spread": -4.095855969924827,
+     "n_bullish": 34,
+     "n_bearish": 7,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-07-19",
+     "n": 41,
+     "rank_correlation": -0.044947735191637625,
+     "long_short_spread": -1.2096921332451849,
+     "n_bullish": 29,
+     "n_bearish": 12,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-08-20",
+     "n": 41,
+     "rank_correlation": -0.26864111498257837,
+     "long_short_spread": -4.957726382272273,
+     "n_bullish": 24,
+     "n_bearish": 17,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-09-18",
+     "n": 41,
+     "rank_correlation": -0.3958188153310104,
+     "long_short_spread": -2.1951755671963267,
+     "n_bullish": 28,
+     "n_bearish": 13,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-10-18",
+     "n": 41,
+     "rank_correlation": 0.11567944250871079,
+     "long_short_spread": -0.5855450397845123,
+     "n_bullish": 16,
+     "n_bearish": 25,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-11-19",
+     "n": 41,
+     "rank_correlation": 0.5386759581881532,
+     "long_short_spread": 2.74007873599986,
+     "n_bullish": 4,
+     "n_bearish": 37,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-12-19",
+     "n": 41,
+     "rank_correlation": -0.3212543554006968,
+     "long_short_spread": -4.471243476815896,
+     "n_bullish": 22,
+     "n_bearish": 19,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-01-20",
+     "n": 41,
+     "rank_correlation": 0.11445993031358884,
+     "long_short_spread": 4.3777667552164825,
+     "n_bullish": 13,
+     "n_bearish": 28,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-02-17",
+     "n": 41,
+     "rank_correlation": -0.27247386759581876,
+     "long_short_spread": -2.938035092664417,
+     "n_bullish": 19,
+     "n_bearish": 22,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-03-20",
+     "n": 41,
+     "rank_correlation": -0.03031358885017421,
+     "long_short_spread": 0.7939150350939919,
+     "n_bullish": 25,
+     "n_bearish": 16,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-04-24",
+     "n": 41,
+     "rank_correlation": -0.4618466898954703,
+     "long_short_spread": -5.262704778359592,
+     "n_bullish": 34,
+     "n_bearish": 7,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-05-26",
+     "n": 41,
+     "rank_correlation": -0.018641114982578394,
+     "long_short_spread": -0.10638409650953998,
+     "n_bullish": 25,
+     "n_bearish": 16,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-06-24",
+     "n": 41,
+     "rank_correlation": -0.4048780487804877,
+     "long_short_spread": -3.066675400638105,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-07-23",
+     "n": 41,
+     "rank_correlation": -0.08397212543554006,
+     "long_short_spread": -0.5587389440545718,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-08-22",
+     "n": 41,
+     "rank_correlation": -0.07404181184668988,
+     "long_short_spread": 0.8471913673595508,
+     "n_bullish": 14,
+     "n_bearish": 27,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-09-23",
+     "n": 41,
+     "rank_correlation": -0.011324041811846689,
+     "long_short_spread": 0.568515163797318,
+     "n_bullish": 27,
+     "n_bearish": 14,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-10-24",
+     "n": 41,
+     "rank_correlation": -0.039547038327526124,
+     "long_short_spread": -0.5997894806596632,
+     "n_bullish": 28,
+     "n_bearish": 12,
+     "n_neutral": 1
+    },
+    {
+     "cutoff": "2025-11-25",
+     "n": 41,
+     "rank_correlation": -0.1792682926829268,
+     "long_short_spread": 0.07370091300203763,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-12-24",
+     "n": 41,
+     "rank_correlation": -0.02369337979094076,
+     "long_short_spread": -2.2255697820011093,
+     "n_bullish": 27,
+     "n_bearish": 14,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-01-27",
+     "n": 41,
+     "rank_correlation": 0.1264808362369338,
+     "long_short_spread": -1.8282185775642594,
+     "n_bullish": 18,
+     "n_bearish": 23,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-02-25",
+     "n": 41,
+     "rank_correlation": -0.2822299651567944,
+     "long_short_spread": -3.1322745487100416,
+     "n_bullish": 29,
+     "n_bearish": 12,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-03-30",
+     "n": 41,
+     "rank_correlation": -0.4320557491289198,
+     "long_short_spread": -4.113252452635402,
+     "n_bullish": 3,
+     "n_bearish": 38,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-05-04",
+     "n": 41,
+     "rank_correlation": 0.11585365853658534,
+     "long_short_spread": -2.020648313135489,
+     "n_bullish": 38,
+     "n_bearish": 3,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-06-03",
+     "n": 41,
+     "rank_correlation": -0.28519163763066196,
+     "long_short_spread": -7.24382081246323,
+     "n_bullish": 13,
+     "n_bearish": 28,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-07-03",
+     "n": 41,
+     "rank_correlation": -0.1968641114982578,
+     "long_short_spread": -5.722337578711114,
+     "n_bullish": 28,
+     "n_bearish": 13,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-08-03",
+     "n": 41,
+     "rank_correlation": 0.15331010452961671,
+     "long_short_spread": 1.9965724954658257,
+     "n_bullish": 30,
+     "n_bearish": 11,
+     "n_neutral": 0
+    }
+   ]
+  },
+  "reversal": {
+   "summary": {
+    "label": "reversal",
+    "dates": 90,
+    "mean_rank_correlation": 0.0467,
+    "rank_correlation_t": 1.88,
+    "mean_spread_pct": 0.916,
+    "dates_with_spread": 89,
+    "spread_hit_rate": 0.618
+   },
+   "describe": "negative trailing 1-month return",
+   "dates": [
+    {
+     "cutoff": "2019-01-02",
+     "n": 41,
+     "rank_correlation": -0.13693379790940766,
+     "long_short_spread": 1.9322000291793668,
+     "n_bullish": 25,
+     "n_bearish": 16,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-01-31",
+     "n": 41,
+     "rank_correlation": 0.44163763066202083,
+     "long_short_spread": 3.2018320054720992,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-03-05",
+     "n": 41,
+     "rank_correlation": 0.1860627177700348,
+     "long_short_spread": -0.5847206267192266,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-04-05",
+     "n": 41,
+     "rank_correlation": 0.3198606271777003,
+     "long_short_spread": 2.7726515969896535,
+     "n_bullish": 10,
+     "n_bearish": 31,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-05-10",
+     "n": 41,
+     "rank_correlation": 0.18501742160278742,
+     "long_short_spread": 3.490418854691729,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-06-11",
+     "n": 41,
+     "rank_correlation": 0.01916376306620209,
+     "long_short_spread": 0.6247112045105574,
+     "n_bullish": 6,
+     "n_bearish": 35,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-07-10",
+     "n": 41,
+     "rank_correlation": 0.05923344947735191,
+     "long_short_spread": 2.846275724277621,
+     "n_bullish": 36,
+     "n_bearish": 5,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-08-08",
+     "n": 41,
+     "rank_correlation": -0.08013937282229965,
+     "long_short_spread": 0.3461800621084722,
+     "n_bullish": 30,
+     "n_bearish": 11,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-09-12",
+     "n": 41,
+     "rank_correlation": -0.252787456445993,
+     "long_short_spread": -4.1898356086697905,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-10-15",
+     "n": 41,
+     "rank_correlation": 0.21271777003484318,
+     "long_short_spread": 4.213335437993237,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-11-18",
+     "n": 41,
+     "rank_correlation": -0.4885017421602787,
+     "long_short_spread": -4.364910140197371,
+     "n_bullish": 14,
+     "n_bearish": 27,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2019-12-17",
+     "n": 41,
+     "rank_correlation": 0.18031358885017418,
+     "long_short_spread": 0.5970435574536932,
+     "n_bullish": 17,
+     "n_bearish": 24,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-01-16",
+     "n": 41,
+     "rank_correlation": -0.12456445993031356,
+     "long_short_spread": -5.663283374872777,
+     "n_bullish": 12,
+     "n_bearish": 29,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-02-14",
+     "n": 41,
+     "rank_correlation": 0.012195121951219511,
+     "long_short_spread": 0.535671605087316,
+     "n_bullish": 26,
+     "n_bearish": 15,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-03-18",
+     "n": 41,
+     "rank_correlation": -0.5520905923344946,
+     "long_short_spread": null,
+     "n_bullish": 41,
+     "n_bearish": 0,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-04-22",
+     "n": 41,
+     "rank_correlation": -0.2738675958188153,
+     "long_short_spread": -4.064794561597644,
+     "n_bullish": 18,
+     "n_bearish": 23,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-05-22",
+     "n": 41,
+     "rank_correlation": 0.39651567944250865,
+     "long_short_spread": 8.71954006302845,
+     "n_bullish": 19,
+     "n_bearish": 22,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-06-23",
+     "n": 41,
+     "rank_correlation": -0.03031358885017421,
+     "long_short_spread": 0.9135159936997623,
+     "n_bullish": 2,
+     "n_bearish": 39,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-07-22",
+     "n": 41,
+     "rank_correlation": 0.1562717770034843,
+     "long_short_spread": -1.0228230016429327,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-08-20",
+     "n": 41,
+     "rank_correlation": -0.20226480836236932,
+     "long_short_spread": -4.441365779133012,
+     "n_bullish": 12,
+     "n_bearish": 29,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-09-18",
+     "n": 41,
+     "rank_correlation": -0.3156794425087108,
+     "long_short_spread": -4.271323191350373,
+     "n_bullish": 19,
+     "n_bearish": 22,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-10-20",
+     "n": 41,
+     "rank_correlation": 0.08135888501742158,
+     "long_short_spread": -0.6190552892588954,
+     "n_bullish": 18,
+     "n_bearish": 23,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-11-19",
+     "n": 41,
+     "rank_correlation": 0.009581881533101045,
+     "long_short_spread": -1.214758372181076,
+     "n_bullish": 11,
+     "n_bearish": 30,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2020-12-21",
+     "n": 41,
+     "rank_correlation": 0.2766550522648083,
+     "long_short_spread": 2.501844910752176,
+     "n_bullish": 7,
+     "n_bearish": 34,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-01-20",
+     "n": 41,
+     "rank_correlation": -0.11428571428571427,
+     "long_short_spread": -3.9830980445081865,
+     "n_bullish": 4,
+     "n_bearish": 37,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-02-19",
+     "n": 41,
+     "rank_correlation": 0.20069686411149823,
+     "long_short_spread": 3.4704229366546278,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-03-23",
+     "n": 41,
+     "rank_correlation": 0.02073170731707317,
+     "long_short_spread": -1.0218062279834987,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-04-27",
+     "n": 41,
+     "rank_correlation": 0.16341463414634144,
+     "long_short_spread": 1.2666504515682853,
+     "n_bullish": 27,
+     "n_bearish": 14,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-05-27",
+     "n": 41,
+     "rank_correlation": 0.044773519163763056,
+     "long_short_spread": 3.1830309264210275,
+     "n_bullish": 4,
+     "n_bearish": 37,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-06-25",
+     "n": 41,
+     "rank_correlation": 0.04564459930313588,
+     "long_short_spread": 0.7953093348377579,
+     "n_bullish": 10,
+     "n_bearish": 31,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-07-27",
+     "n": 41,
+     "rank_correlation": -0.06010452961672473,
+     "long_short_spread": 0.6486579815374305,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-08-26",
+     "n": 41,
+     "rank_correlation": 0.216376306620209,
+     "long_short_spread": 2.3808276123049863,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-09-27",
+     "n": 41,
+     "rank_correlation": 0.003310104529616724,
+     "long_short_spread": 0.6928475291504619,
+     "n_bullish": 5,
+     "n_bearish": 36,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-10-27",
+     "n": 41,
+     "rank_correlation": 0.34006968641114976,
+     "long_short_spread": 2.2654352036202114,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-11-29",
+     "n": 41,
+     "rank_correlation": -0.09738675958188152,
+     "long_short_spread": 1.0377261092611307,
+     "n_bullish": 34,
+     "n_bearish": 7,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2021-12-28",
+     "n": 41,
+     "rank_correlation": 0.4094076655052264,
+     "long_short_spread": 6.612949501047334,
+     "n_bullish": 16,
+     "n_bearish": 25,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-01-27",
+     "n": 41,
+     "rank_correlation": 0.2538327526132404,
+     "long_short_spread": 3.1820674349182623,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-02-25",
+     "n": 41,
+     "rank_correlation": -0.21341463414634143,
+     "long_short_spread": -3.647552954576898,
+     "n_bullish": 29,
+     "n_bearish": 12,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-03-30",
+     "n": 41,
+     "rank_correlation": 0.22125435540069682,
+     "long_short_spread": 7.207239419476631,
+     "n_bullish": 12,
+     "n_bearish": 29,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-05-02",
+     "n": 41,
+     "rank_correlation": -0.25783972125435534,
+     "long_short_spread": -3.500607087039398,
+     "n_bullish": 18,
+     "n_bearish": 23,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-06-01",
+     "n": 41,
+     "rank_correlation": -0.4954703832752613,
+     "long_short_spread": -5.300357769105302,
+     "n_bullish": 29,
+     "n_bearish": 12,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-06-30",
+     "n": 41,
+     "rank_correlation": 0.5439024390243902,
+     "long_short_spread": 9.570910095935517,
+     "n_bullish": 34,
+     "n_bearish": 7,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-07-29",
+     "n": 41,
+     "rank_correlation": -0.1578397212543554,
+     "long_short_spread": -0.7596899225758271,
+     "n_bullish": 5,
+     "n_bearish": 36,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-09-01",
+     "n": 41,
+     "rank_correlation": -0.12038327526132402,
+     "long_short_spread": 2.322768735326517,
+     "n_bullish": 9,
+     "n_bearish": 32,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-09-30",
+     "n": 41,
+     "rank_correlation": 0.26132404181184665,
+     "long_short_spread": 3.9942088332527654,
+     "n_bullish": 30,
+     "n_bearish": 11,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-11-02",
+     "n": 41,
+     "rank_correlation": -0.07386759581881532,
+     "long_short_spread": 1.5984125570049041,
+     "n_bullish": 6,
+     "n_bearish": 35,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2022-12-02",
+     "n": 41,
+     "rank_correlation": 0.03850174216027874,
+     "long_short_spread": -0.6891924284482833,
+     "n_bullish": 14,
+     "n_bearish": 27,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-01-02",
+     "n": 41,
+     "rank_correlation": 0.19320557491289195,
+     "long_short_spread": 3.015153245189995,
+     "n_bullish": 32,
+     "n_bearish": 9,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-02-01",
+     "n": 41,
+     "rank_correlation": 0.36167247386759577,
+     "long_short_spread": 2.8667415665816507,
+     "n_bullish": 20,
+     "n_bearish": 21,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-03-02",
+     "n": 41,
+     "rank_correlation": -0.04285714285714285,
+     "long_short_spread": -0.5034131515961497,
+     "n_bullish": 23,
+     "n_bearish": 18,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-04-05",
+     "n": 41,
+     "rank_correlation": 0.3031358885017421,
+     "long_short_spread": 1.9699683707554563,
+     "n_bullish": 18,
+     "n_bearish": 23,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-05-09",
+     "n": 41,
+     "rank_correlation": -0.11045296167247386,
+     "long_short_spread": -0.11328803215424754,
+     "n_bullish": 7,
+     "n_bearish": 34,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-06-07",
+     "n": 41,
+     "rank_correlation": 0.02909407665505226,
+     "long_short_spread": -0.4531071441707306,
+     "n_bullish": 10,
+     "n_bearish": 31,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-07-07",
+     "n": 41,
+     "rank_correlation": 0.11550522648083622,
+     "long_short_spread": -0.4780635966958475,
+     "n_bullish": 8,
+     "n_bearish": 33,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-08-07",
+     "n": 41,
+     "rank_correlation": -0.1336236933797909,
+     "long_short_spread": -0.4600140871177709,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-09-06",
+     "n": 41,
+     "rank_correlation": -0.18867595818815328,
+     "long_short_spread": -1.0951648790208155,
+     "n_bullish": 17,
+     "n_bearish": 24,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-10-09",
+     "n": 41,
+     "rank_correlation": 0.01655052264808362,
+     "long_short_spread": 0.2693560644147224,
+     "n_bullish": 22,
+     "n_bearish": 19,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-11-08",
+     "n": 41,
+     "rank_correlation": -0.11463414634146339,
+     "long_short_spread": -1.8027285543959835,
+     "n_bullish": 17,
+     "n_bearish": 24,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2023-12-11",
+     "n": 41,
+     "rank_correlation": 0.05609756097560975,
+     "long_short_spread": 3.085338704590864,
+     "n_bullish": 3,
+     "n_bearish": 38,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-01-10",
+     "n": 41,
+     "rank_correlation": -0.30505226480836234,
+     "long_short_spread": -2.708819790948885,
+     "n_bullish": 11,
+     "n_bearish": 30,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-02-12",
+     "n": 41,
+     "rank_correlation": 0.08693379790940765,
+     "long_short_spread": 0.7624188459919969,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-03-13",
+     "n": 41,
+     "rank_correlation": -0.07038327526132403,
+     "long_short_spread": 1.1125238656641254,
+     "n_bullish": 19,
+     "n_bearish": 22,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-04-16",
+     "n": 41,
+     "rank_correlation": -0.13937282229965153,
+     "long_short_spread": -0.9831306884612494,
+     "n_bullish": 18,
+     "n_bearish": 23,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-05-17",
+     "n": 41,
+     "rank_correlation": -0.13780487804878047,
+     "long_short_spread": -1.4380329478405227,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-06-19",
+     "n": 41,
+     "rank_correlation": 0.3693379790940766,
+     "long_short_spread": 4.095855969924827,
+     "n_bullish": 7,
+     "n_bearish": 34,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-07-19",
+     "n": 41,
+     "rank_correlation": 0.044947735191637625,
+     "long_short_spread": 1.2096921332451849,
+     "n_bullish": 12,
+     "n_bearish": 29,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-08-20",
+     "n": 41,
+     "rank_correlation": 0.26864111498257837,
+     "long_short_spread": 4.957726382272273,
+     "n_bullish": 17,
+     "n_bearish": 24,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-09-18",
+     "n": 41,
+     "rank_correlation": 0.3958188153310104,
+     "long_short_spread": 2.1951755671963267,
+     "n_bullish": 13,
+     "n_bearish": 28,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-10-18",
+     "n": 41,
+     "rank_correlation": -0.11567944250871079,
+     "long_short_spread": 0.5855450397845123,
+     "n_bullish": 25,
+     "n_bearish": 16,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-11-19",
+     "n": 41,
+     "rank_correlation": -0.5386759581881532,
+     "long_short_spread": -2.74007873599986,
+     "n_bullish": 37,
+     "n_bearish": 4,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2024-12-19",
+     "n": 41,
+     "rank_correlation": 0.3212543554006968,
+     "long_short_spread": 4.471243476815896,
+     "n_bullish": 19,
+     "n_bearish": 22,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-01-20",
+     "n": 41,
+     "rank_correlation": -0.11445993031358884,
+     "long_short_spread": -4.3777667552164825,
+     "n_bullish": 28,
+     "n_bearish": 13,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-02-17",
+     "n": 41,
+     "rank_correlation": 0.27247386759581876,
+     "long_short_spread": 2.938035092664417,
+     "n_bullish": 22,
+     "n_bearish": 19,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-03-20",
+     "n": 41,
+     "rank_correlation": 0.03031358885017421,
+     "long_short_spread": -0.7939150350939919,
+     "n_bullish": 16,
+     "n_bearish": 25,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-04-24",
+     "n": 41,
+     "rank_correlation": 0.4618466898954703,
+     "long_short_spread": 5.262704778359592,
+     "n_bullish": 7,
+     "n_bearish": 34,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-05-26",
+     "n": 41,
+     "rank_correlation": 0.018641114982578394,
+     "long_short_spread": 0.10638409650953998,
+     "n_bullish": 16,
+     "n_bearish": 25,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-06-24",
+     "n": 41,
+     "rank_correlation": 0.4048780487804877,
+     "long_short_spread": 3.066675400638105,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-07-23",
+     "n": 41,
+     "rank_correlation": 0.08397212543554006,
+     "long_short_spread": 0.5587389440545718,
+     "n_bullish": 15,
+     "n_bearish": 26,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-08-22",
+     "n": 41,
+     "rank_correlation": 0.07404181184668988,
+     "long_short_spread": -0.8471913673595508,
+     "n_bullish": 27,
+     "n_bearish": 14,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-09-23",
+     "n": 41,
+     "rank_correlation": 0.011324041811846689,
+     "long_short_spread": -0.568515163797318,
+     "n_bullish": 14,
+     "n_bearish": 27,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-10-24",
+     "n": 41,
+     "rank_correlation": 0.039547038327526124,
+     "long_short_spread": 0.5997894806596632,
+     "n_bullish": 12,
+     "n_bearish": 28,
+     "n_neutral": 1
+    },
+    {
+     "cutoff": "2025-11-25",
+     "n": 41,
+     "rank_correlation": 0.1792682926829268,
+     "long_short_spread": -0.07370091300203763,
+     "n_bullish": 21,
+     "n_bearish": 20,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2025-12-24",
+     "n": 41,
+     "rank_correlation": 0.02369337979094076,
+     "long_short_spread": 2.2255697820011093,
+     "n_bullish": 14,
+     "n_bearish": 27,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-01-27",
+     "n": 41,
+     "rank_correlation": -0.1264808362369338,
+     "long_short_spread": 1.8282185775642594,
+     "n_bullish": 23,
+     "n_bearish": 18,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-02-25",
+     "n": 41,
+     "rank_correlation": 0.2822299651567944,
+     "long_short_spread": 3.1322745487100416,
+     "n_bullish": 12,
+     "n_bearish": 29,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-03-30",
+     "n": 41,
+     "rank_correlation": 0.4320557491289198,
+     "long_short_spread": 4.113252452635402,
+     "n_bullish": 38,
+     "n_bearish": 3,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-05-04",
+     "n": 41,
+     "rank_correlation": -0.11585365853658534,
+     "long_short_spread": 2.020648313135489,
+     "n_bullish": 3,
+     "n_bearish": 38,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-06-03",
+     "n": 41,
+     "rank_correlation": 0.28519163763066196,
+     "long_short_spread": 7.24382081246323,
+     "n_bullish": 28,
+     "n_bearish": 13,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-07-03",
+     "n": 41,
+     "rank_correlation": 0.1968641114982578,
+     "long_short_spread": 5.722337578711114,
+     "n_bullish": 13,
+     "n_bearish": 28,
+     "n_neutral": 0
+    },
+    {
+     "cutoff": "2026-08-03",
+     "n": 41,
+     "rank_correlation": -0.15331010452961671,
+     "long_short_spread": -1.9965724954658257,
+     "n_bullish": 11,
+     "n_bearish": 30,
+     "n_neutral": 0
+    }
+   ]
+  }
+ }
+}

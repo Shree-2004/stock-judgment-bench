@@ -1,0 +1,20 @@
+# secrets - .env alone does NOT match .env.bak-* / .env.backup-*
+.env
+.env.*
+!.env.example
+
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.sqlite
+*.db
+.ipynb_checkpoints/
+logs/
+reports/
+
+# cache: raw BSE filings, snapshots and grid outputs are all refetchable.
+# baselines.json is kept - it is the source of the README's baseline table.
+cache/*
+!cache/baselines.json

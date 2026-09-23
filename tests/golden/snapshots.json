@@ -1,0 +1,53 @@
+{
+  "NESTLEIND.NS@2024-01-02": {
+    "as_of": "2024-01-02",
+    "avg_volume_1mo": 2127580.0,
+    "change_pct_1d": -0.54525905223411,
+    "change_pct_1mo": 11.851742551051043,
+    "company_name": "Nestlé India Limited",
+    "currency": "INR",
+    "market_cap": 2624738898068.828,
+    "pct_off_52w_high": -0.54525905223411,
+    "previous_close": 27372.39990234375,
+    "price": 27223.1494140625,
+    "split_factor_applied": 20.0,
+    "ticker": "NESTLEIND.NS",
+    "trading_days_used": 291,
+    "week52_high": 27372.39990234375,
+    "week52_low": 17993.349609375
+  },
+  "RELIANCE.NS@2024-06-03": {
+    "as_of": "2024-06-03",
+    "avg_volume_1mo": 11771913.333333334,
+    "change_pct_1d": 5.587592658952331,
+    "change_pct_1mo": 2.9848897675690766,
+    "company_name": "Reliance Industries Limited",
+    "currency": "INR",
+    "market_cap": 20438050139042.25,
+    "pct_off_52w_high": 0.0,
+    "previous_close": 2860.800048828125,
+    "price": 3020.64990234375,
+    "split_factor_applied": 2.0,
+    "ticker": "RELIANCE.NS",
+    "trading_days_used": 286,
+    "week52_high": 3020.64990234375,
+    "week52_low": 2226.5
+  },
+  "TCS.NS@2025-11-03": {
+    "as_of": "2025-11-03",
+    "avg_volume_1mo": 3282009.761904762,
+    "change_pct_1d": -1.347284210983486,
+    "change_pct_1mo": 3.520695195090915,
+    "company_name": "Tata Consultancy Services Limited",
+    "currency": "INR",
+    "market_cap": 10915046600966.83,
+    "pct_off_52w_high": -32.56889705449806,
+    "previous_close": 3058.0,
+    "price": 3016.800048828125,
+    "split_factor_applied": 1.0,
+    "ticker": "TCS.NS",
+    "trading_days_used": 293,
+    "week52_high": 4473.89990234375,
+    "week52_low": 2888.39990234375
+  }
+}

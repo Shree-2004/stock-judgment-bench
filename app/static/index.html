@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stock-judgment-bench</title>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#13171c; --panel-2:#181d23; --line:#242b33;
+    --ink:#e8edf3; --muted:#8b97a6; --dim:#5d6875;
+    --pos:#3fb950; --neg:#f85149; --warn:#d29922; --accent:#58a6ff;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif}
+  a{color:var(--accent)}
+  .wrap{max-width:1500px;margin:0 auto;padding:28px 24px 64px}
+
+  header{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+  h1{font-size:26px;margin:0;letter-spacing:-.02em}
+  .q{color:var(--muted);font-size:13.5px;margin:0 0 20px}
+  .chip{font-family:var(--mono);font-size:11.5px;color:var(--muted);
+        background:var(--panel-2);border:1px solid var(--line);
+        padding:3px 9px;border-radius:999px}
+
+  .banner{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:9px;
+          font-size:13.5px;margin-bottom:22px;border:1px solid}
+  .banner.partial{background:#1d1a0e;border-color:#3d3418;color:#e5c46b}
+  .banner.done{background:#0f1d13;border-color:#1c3b25;color:#6fd888}
+  .banner b{font-weight:650}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px 17px}
+  .card .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .card .v{font-size:30px;font-weight:600;letter-spacing:-.02em;margin:5px 0 3px;font-variant-numeric:tabular-nums}
+  .card .s{font-size:12px;color:var(--dim)}
+  .card .s.good{color:var(--pos)} .card .s.bad{color:var(--neg)}
+
+  .bar{height:5px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin:16px 0 26px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,#1f6feb,#58a6ff);transition:width .5s}
+
+  .grid2{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(460px,1.15fr);gap:16px;align-items:start}
+  @media(max-width:1080px){.grid2{grid-template-columns:1fr}}
+
+  section{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:17px 19px;margin-bottom:16px}
+  h2{font-size:13px;margin:0 0 14px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+
+  .vrow{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+  .vrow .lab{width:74px;font-size:12.5px;color:var(--muted)}
+  .vrow .track{flex:1;height:22px;background:var(--panel-2);border-radius:5px;overflow:hidden}
+  .vrow .fill{height:100%;border-radius:5px;transition:width .5s}
+  .vrow .n{width:78px;text-align:right;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:right;font-weight:600;color:var(--muted);font-size:11.5px;
+     text-transform:uppercase;letter-spacing:.05em;padding:0 10px 9px;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  td{padding:8px 10px;border-bottom:1px solid #1b2128;text-align:right;
+     font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12.5px}
+  td:first-child{font-family:inherit;font-size:13px}
+  tbody tr:hover{background:#171c22;cursor:default}
+  tbody tr.sel{background:#16202b}
+  .me td{color:var(--accent);font-weight:600}
+  .na{color:var(--dim)}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+
+  .note{font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.55}
+  .note code{font-family:var(--mono);font-size:11.5px;background:var(--panel-2);padding:1px 5px;border-radius:4px;color:var(--muted)}
+  .caution{border-left:2px solid var(--warn);padding-left:11px;color:#c9a227}
+
+  .scroll{max-height:460px;overflow:auto}
+  .scroll::-webkit-scrollbar{width:9px}
+  .scroll::-webkit-scrollbar-thumb{background:#273039;border-radius:9px}
+
+  footer{margin-top:26px;color:var(--dim);font-size:12px;display:flex;gap:14px;flex-wrap:wrap}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--pos);display:inline-block;margin-right:6px;
+       animation:p 2s ease-in-out infinite}
+  @keyframes p{50%{opacity:.35}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>stock-judgment-bench</h1>
+    <span class="chip" id="chip-model">—</span>
+    <span class="chip" id="chip-universe">—</span>
+  </header>
+  <p class="q">Does an LLM's stock judgement contain anything, once lookahead leakage and market drift are removed? Expected answer: no.</p>
+
+  <div id="banner" class="banner partial">loading…</div>
+
+  <div class="cards" id="cards"></div>
+  <div class="bar"><i id="bar" style="width:0%"></i></div>
+
+  <div class="grid2">
+    <div>
+      <section>
+        <h2>verdict distribution</h2>
+        <div id="verdicts"></div>
+        <div class="note" id="conf"></div>
+        <div class="note caution" id="concentration" hidden></div>
+      </section>
+      <section>
+        <h2>L1 · numeric grounding</h2>
+        <div id="l1"></div>
+        <div class="note">Every figure the model cites is checked against the field it was claimed for, with a tolerance that accepts honest rounding. A right number on the wrong label fails.</div>
+      </section>
+    </div>
+
+    <div>
+      <section>
+        <h2>L3 · outcome — one observation per date</h2>
+        <table>
+          <thead><tr><th>strategy</th><th>dates</th><th>rank corr</th><th>t</th><th>spread %</th><th>hit</th></tr></thead>
+          <tbody id="l3"></tbody>
+        </table>
+        <div class="note"><code>always_bullish</code> shows dashes because cross-sectional scoring makes market drift unexploitable — it is unscoreable, not merely bad. Pre-registered: if the model re-reads momentum it should land near momentum's rank correlation, not near zero.</div>
+      </section>
+
+      <section>
+        <h2>per-stock breakdown</h2>
+        <div class="note caution" style="margin:0 0 13px">Diagnostics, not the result. The benchmark ranks all 41 names <em>against each other on the same date</em> — that is what removes the market. One stock has no cross-section, so this shows the verdict against that stock's return <em>relative to the Nifty</em>. Small samples swing wildly; read it for outliers, not evidence.</div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>ticker</th><th>briefs</th><th>bull</th><th>neut</th><th>bear</th><th>L1</th><th>calls</th><th>hit vs nifty</th><th>mean excess</th></tr></thead>
+            <tbody id="stocks"></tbody>
+          </table>
+        </div>
+        <div class="note">Click a row for its full history. <code>calls</code> excludes NEUTRAL verdicts — silence is not a wrong answer.</div>
+      </section>
+
+      <section id="hist-sec" hidden>
+        <h2 id="hist-title">history</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>date</th><th>verdict</th><th>conf</th><th>L1</th><th>excess vs nifty</th><th>hit</th></tr></thead>
+            <tbody id="hist"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <span><span class="dot"></span><span id="live">live</span></span>
+    <span id="tokens"></span>
+    <span id="errors"></span>
+    <span>read-only · L2 tier-2 (semantic overlap) is deliberately not shown: measurement proved it flags correct paraphrases, so it is not a metric.</span>
+  </footer>
+</div>
+
+<script>
+const pct = (v,d=1)=> v==null ? '<span class="na">—</span>' : (v*100).toFixed(d)+'%';
+const num = (v,d=4)=> v==null ? '<span class="na">—</span>' : (+v).toFixed(d);
+const sgn = (v,d=2)=> v==null ? '<span class="na">—</span>'
+  : `<span class="${v>0?'pos':v<0?'neg':''}">${v>0?'+':''}${(+v).toFixed(d)}</span>`;
+
+let selected = null, cache = null;
+
+function cards(s){
+  const p = s.progress;
+  const c = [
+    ['briefs generated', s.done.toLocaleString(), `${p.ok.toLocaleString()} ok`,
+     p.failed ? `${p.failed} failed` : 'no failures', p.failed ? 'bad':'good'],
+    ['grid cells', `${s.grid.ok.toLocaleString()}`, `of ${s.grid.expected.toLocaleString()}`,
+     s.grid.complete ? 'complete' : 'incomplete', s.grid.complete ? 'good':'bad'],
+    ['L1 grounding', p.mean_l1==null?'—':(p.mean_l1*100).toFixed(1)+'%', '',
+     `${p.wrong} wrong figures`, p.wrong ? 'bad':'good'],
+    ['L1 clean rate', p.clean_rate==null?'—':(p.clean_rate*100).toFixed(1)+'%', '',
+     `${p.unverifiable} invented labels`, p.unverifiable ? 'bad':'good'],
+  ];
+  document.getElementById('cards').innerHTML = c.map(([k,v,sub,s2,cls])=>
+    `<div class="card"><div class="k">${k}</div><div class="v">${v}</div>
+     <div class="s ${cls}">${s2}${sub?' · '+sub:''}</div></div>`).join('');
+}
+
+function verdicts(s){
+  const v = s.progress.verdicts || {};
+  const tot = Object.values(v).reduce((a,b)=>a+b,0) || 1;
+  const col = {BULLISH:'var(--pos)', NEUTRAL:'var(--dim)', BEARISH:'var(--neg)'};
+  document.getElementById('verdicts').innerHTML = ['BULLISH','NEUTRAL','BEARISH'].map(k=>{
+    const n = v[k]||0, w = (n/tot*100);
+    return `<div class="vrow"><div class="lab">${k.toLowerCase()}</div>
+      <div class="track"><div class="fill" style="width:${w}%;background:${col[k]}"></div></div>
+      <div class="n">${n} · ${w.toFixed(0)}%</div></div>`;
+  }).join('');
+
+  const conf = s.progress.confidence||{};
+  document.getElementById('conf').innerHTML = Object.keys(conf).length
+    ? 'confidence values used: ' + Object.entries(conf).map(([k,n])=>`${k}×${n}`).join(', ')
+      + (Object.keys(conf).length<=2 ? ' — only two distinct values, so it almost certainly carries no signal and must not weight anything.' : '')
+    : '';
+
+  const top = Object.entries(v).sort((a,b)=>b[1]-a[1])[0];
+  const el = document.getElementById('concentration');
+  if (top && top[1]/tot > 0.55){
+    el.hidden = false;
+    el.innerHTML = `<b>${(top[1]/tot*100).toFixed(0)}% ${top[0]}.</b> A concentrated verdict weakens L3 for the same structural reason <code>always_bullish</code> is unscoreable — with few distinct values there is little to rank, and dates with no ${top[0]==='BEARISH'?'long':'short'} leg have no spread at all.`;
+  } else el.hidden = true;
+}
+
+function l1panel(s){
+  const p = s.progress;
+  document.getElementById('l1').innerHTML = `
+    <div class="vrow"><div class="lab">clean</div>
+      <div class="track"><div class="fill" style="width:${(p.clean_rate||0)*100}%;background:var(--pos)"></div></div>
+      <div class="n">${pct(p.clean_rate)}</div></div>
+    <div class="vrow"><div class="lab">unparsed</div>
+      <div class="track"><div class="fill" style="width:${p.ok?(p.unparsed/p.ok*100):0}%;background:var(--warn)"></div></div>
+      <div class="n">${p.unparsed}</div></div>`;
+}
+
+function l3(s){
+  document.getElementById('l3').innerHTML = s.l3.map(r=>{
+    const me = r.label === 'model';
+    return `<tr class="${me?'me':''}"><td>${me?'model':r.label}</td>
+      <td>${r.dates}</td><td>${num(r.mean_rank_correlation)}</td>
+      <td>${num(r.rank_correlation_t,2)}</td><td>${num(r.mean_spread_pct,3)}</td>
+      <td>${num(r.spread_hit_rate,3)}</td></tr>`;
+  }).join('');
+}
+
+function stocks(s){
+  document.getElementById('stocks').innerHTML = s.per_stock.map(r=>
+    `<tr data-t="${r.ticker}" class="${selected===r.ticker?'sel':''}">
+      <td>${r.ticker}</td><td>${r.briefs}</td>
+      <td class="pos">${r.bull}</td><td class="na">${r.neut}</td><td class="neg">${r.bear}</td>
+      <td>${pct(r.l1)}</td><td>${r.calls}</td><td>${pct(r.hit,0)}</td>
+      <td>${sgn(r.mean_excess)}</td></tr>`).join('');
+  document.querySelectorAll('#stocks tr').forEach(tr=>
+    tr.onclick = ()=>{ selected = tr.dataset.t; render(cache); });
+  if (selected) history(s);
+}
+
+function history(s){
+  const row = s.per_stock.find(r=>r.ticker===selected);
+  const sec = document.getElementById('hist-sec');
+  if(!row){ sec.hidden = true; return; }
+  sec.hidden = false;
+  document.getElementById('hist-title').textContent = `${selected} · ${row.history.length} briefs`;
+  document.getElementById('hist').innerHTML = row.history.map(h=>
+    `<tr><td>${h.cutoff}</td>
+      <td class="${h.verdict==='BULLISH'?'pos':h.verdict==='BEARISH'?'neg':'na'}">${h.verdict.toLowerCase()}</td>
+      <td>${h.confidence??'—'}</td><td>${pct(h.l1,0)}</td>
+      <td>${sgn(h.excess)}</td>
+      <td>${h.hit==null?'<span class="na">—</span>':(h.hit?'<span class="pos">yes</span>':'<span class="neg">no</span>')}</td></tr>`).join('');
+}
+
+function render(s){
+  cache = s;
+  document.getElementById('chip-model').textContent = s.model;
+  document.getElementById('chip-universe').textContent = `${s.n_tickers} tickers × ${s.n_windows} dates`;
+
+  const b = document.getElementById('banner');
+  const frac = s.total ? s.done/s.total : 0;
+  if (s.complete){
+    b.className = 'banner done';
+    b.innerHTML = `<b>COMPLETE</b> — all ${s.total.toLocaleString()} briefs generated. These numbers are the result.`;
+  } else {
+    b.className = 'banner partial';
+    b.innerHTML = `<b>PARTIAL — ${s.done.toLocaleString()} of ${s.total.toLocaleString()} briefs (${(frac*100).toFixed(1)}%). Not a result yet.</b> Numbers below will move.`;
+  }
+  document.getElementById('bar').style.width = (frac*100)+'%';
+
+  cards(s); verdicts(s); l1panel(s); l3(s); stocks(s);
+  document.getElementById('tokens').textContent = `${s.progress.tokens.toLocaleString()} tokens`;
+  const e = s.progress.errors||{};
+  document.getElementById('errors').textContent =
+    Object.keys(e).length ? 'failures: '+Object.entries(e).map(([k,v])=>`${k}×${v}`).join(', ') : '';
+  document.getElementById('live').textContent = `updated ${s.generated_at}`;
+}
+
+async function poll(){
+  try{
+    const r = await fetch('/api/state', {cache:'no-store'});
+    const s = await r.json();
+    if (s.error) { document.getElementById('banner').textContent = s.error; return; }
+    render(s);
+  }catch(e){ document.getElementById('live').textContent = 'reconnecting…'; }
+}
+poll(); setInterval(poll, 6000);
+</script>
+</body>
+</html>
