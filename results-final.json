@@ -1,0 +1,79 @@
+{
+ "prompt_version": "v1_structured",
+ "model": "gemini-3.1-flash-lite",
+ "l1_grounding": {
+  "briefs": 3690,
+  "failed": 0,
+  "unparsed": 0,
+  "mean_grounding": 0.9998,
+  "clean_rate": 0.9989,
+  "briefs_with_a_wrong_figure": 4,
+  "briefs_with_an_invented_label": 0,
+  "briefs_citing_nothing_checkable": 0
+ },
+ "l2_attribution_tier1": {
+  "briefs_checked": 3591,
+  "claims": 8804,
+  "fabricated_citations": 0,
+  "uncited_claims": 1,
+  "citation_validity": 0.9999,
+  "brief_clean_rate": 0.9997
+ },
+ "l3_outcome": {
+  "label": "model:v1_structured",
+  "dates": 90,
+  "mean_rank_correlation": -0.0153,
+  "rank_correlation_t": -0.65,
+  "mean_spread_pct": -0.885,
+  "dates_with_spread": 63,
+  "spread_hit_rate": 0.444
+ },
+ "l3_join": {
+  "joined": 3690,
+  "no_grid_row": 0,
+  "unparsed_or_failed": 0
+ },
+ "verdict_distribution": {
+  "NEUTRAL": 2076,
+  "BULLISH": 1330,
+  "BEARISH": 284
+ },
+ "baselines": {
+  "always_bullish": {
+   "label": "always_bullish",
+   "dates": 90,
+   "mean_rank_correlation": null,
+   "rank_correlation_t": null,
+   "mean_spread_pct": null,
+   "dates_with_spread": 0,
+   "spread_hit_rate": null
+  },
+  "random": {
+   "label": "random",
+   "dates": 90,
+   "mean_rank_correlation": 0.0123,
+   "rank_correlation_t": 0.72,
+   "mean_spread_pct": 0.211,
+   "dates_with_spread": 90,
+   "spread_hit_rate": 0.533
+  },
+  "momentum": {
+   "label": "momentum",
+   "dates": 90,
+   "mean_rank_correlation": -0.0467,
+   "rank_correlation_t": -1.88,
+   "mean_spread_pct": -0.916,
+   "dates_with_spread": 89,
+   "spread_hit_rate": 0.382
+  },
+  "reversal": {
+   "label": "reversal",
+   "dates": 90,
+   "mean_rank_correlation": 0.0467,
+   "rank_correlation_t": 1.88,
+   "mean_spread_pct": 0.916,
+   "dates_with_spread": 89,
+   "spread_hit_rate": 0.618
+  }
+ }
+}

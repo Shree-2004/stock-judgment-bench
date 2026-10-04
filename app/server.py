@@ -63,6 +63,10 @@ def _load_frozen() -> dict:
                     for rs in grid.values() for r in rs},
         "excess": {f"{r['cutoff']}|{r['ticker']}": r.get("excess_return")
                    for rs in grid.values() for r in rs},
+        "price": {f"{r['cutoff']}|{r['ticker']}": r.get("price")
+                  for rs in grid.values() for r in rs},
+        "mom": {f"{r['cutoff']}|{r['ticker']}": r.get("change_pct_1mo")
+                for rs in grid.values() for r in rs},
         "baselines": [dict(score_l3(b.name, rows[b.name]).summary(),
                            describe=b.describe) for b in BASELINES],
     }
@@ -175,6 +179,9 @@ def build_state() -> dict:
             "history": [
                 {"cutoff": e["cutoff"], "verdict": e["verdict"],
                  "confidence": e["confidence"], "l1": e["l1"],
+                 "price": f["price"].get(f"{e['cutoff']}|{tk}"),
+                 "mom": f["mom"].get(f"{e['cutoff']}|{tk}"),
+                 "fwd": f["returns"].get(f"{e['cutoff']}|{tk}"),
                  "excess": f["excess"].get(f"{e['cutoff']}|{tk}"),
                  "hit": _hit(e["verdict"], f["excess"].get(f"{e['cutoff']}|{tk}"))}
                 for e in sorted(entries, key=lambda x: x["cutoff"])
@@ -212,6 +219,67 @@ def cached_state() -> dict:
     return state
 
 
+def window_detail(ticker: str, cutoff: str) -> dict:
+    """Everything one brief was built from, and what it said.
+
+    This is the archived evidence for a single (ticker, date) — the filings
+    the model was actually shown on that day, not a live feed. A live news
+    feed would put today's information beside a 2021 verdict, which is the
+    exact lookahead leak the whole benchmark is built to prevent.
+    """
+    from datetime import date as _date
+
+    from data.news_data import get_disclosures
+    from scripts.run_briefs import model_slug, result_path
+
+    symbol = ticker.replace(".NS", "")
+    path = result_path("v1_structured", settings.llm_model, symbol, cutoff)
+    if not path.exists():
+        return {"error": f"no brief for {symbol} @ {cutoff}"}
+    rec = json.loads(path.read_text(encoding="utf-8"))
+    if rec.get("error"):
+        return {"error": rec["error"], "ticker": ticker, "cutoff": cutoff}
+
+    brief = rec.get("brief") or {}
+    try:
+        bundle = get_disclosures(symbol, _date.fromisoformat(cutoff), limit=5)
+        filings = [
+            {"n": i, "filed_at": (it.filed_at or "")[:10],
+             "category": it.category, "headline": it.headline}
+            for i, it in enumerate(bundle.items, 1)
+        ]
+        considered, noise = bundle.considered, bundle.dropped_as_noise
+    except Exception as exc:                                   # noqa: BLE001
+        filings, considered, noise = [], 0, 0
+        brief.setdefault("_filings_error", str(exc))
+
+    # Resolve each stated reason to the filing it cited, so a fabricated or
+    # out-of-range citation is visible rather than implied.
+    drivers = []
+    for d in (brief.get("drivers") or []):
+        c = d.get("citation")
+        ok = isinstance(c, int) and 1 <= c <= len(filings)
+        drivers.append({
+            "claim": d.get("claim", ""),
+            "citation": c,
+            "resolved": filings[c - 1]["headline"] if ok else None,
+            "status": "ok" if ok else ("uncited" if c is None else "fabricated"),
+        })
+
+    return {
+        "ticker": ticker, "cutoff": cutoff,
+        "verdict": brief.get("verdict"), "confidence": brief.get("confidence"),
+        "bull_case": brief.get("bull_case"), "bear_case": brief.get("bear_case"),
+        "cited_figures": brief.get("cited_figures") or {},
+        "l1_checks": (rec.get("l1") or {}).get("checks") or [],
+        "drivers": drivers,
+        "filings": filings,
+        "filings_considered": considered,
+        "filings_dropped_noise": noise,
+        "raw_text": rec.get("raw_text", ""),
+    }
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):        # keep the console readable
         pass
@@ -225,6 +293,19 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        if self.path.startswith("/api/window"):
+            from urllib.parse import parse_qs, urlparse
+
+            q = parse_qs(urlparse(self.path).query)
+            t = (q.get("ticker") or [""])[0]
+            c = (q.get("cutoff") or [""])[0]
+            try:
+                body = json.dumps(window_detail(t, c)).encode("utf-8")
+            except Exception as exc:                            # noqa: BLE001
+                body = json.dumps({"error": f"{type(exc).__name__}: {exc}"}).encode()
+                return self._send(500, body, "application/json")
+            return self._send(200, body, "application/json")
+
         if self.path.startswith("/api/state"):
             try:
                 body = json.dumps(cached_state()).encode("utf-8")

@@ -14,33 +14,77 @@ Pick a date in the past. Build a snapshot containing only what was knowable that
 |---|---|---|---|
 | **L1** | Are the cited numbers right? | `MarketSnapshot.figures()` | works |
 | **L2** | Are the cited *reasons* real? | the BSE filings supplied | tier 1 works; tier 2 falsified |
-| **L3** | Was the call right? | forward 21-trading-day return | pending full run |
+| **L3** | Was the call right? | forward 21-trading-day return | works — no edge found |
 
 **L3 is scored cross-sectionally**: within each date, do the model's bullish names outperform its bearish ones? That is market-neutral by construction — which is why `always_bullish`, the strategy that would look brilliant on raw returns, is *unscoreable* here rather than strong.
 
 One date is one observation. 3,690 briefs do not become 3,690 degrees of freedom; they become 90.
 
-## Results so far
+## Results
 
-**Baselines — final, all 90 dates, complete grid:**
+**Complete.** 3,690 briefs, 41 NSE large caps, 90 non-overlapping 21-trading-day windows, 2019–2026.
+
+### L3 — does the model's judgement predict anything?
 
 | strategy | dates | rank corr | t | spread % | hit |
 |---|---|---|---|---|---|
+| **model** (`gemini-3.1-flash-lite`) | 90 | **−0.0153** | **−0.65** | −0.885 | 44.4% |
 | always_bullish | 90 | — | — | — | — |
-| random | 90 | +0.012 | 0.72 | +0.21 | 53.3% |
-| momentum | 90 | −0.047 | −1.88 | −0.92 | 38.2% |
-| reversal | 90 | +0.047 | +1.88 | +0.92 | 61.8% |
+| random | 90 | +0.0123 | 0.72 | +0.211 | 53.3% |
+| momentum | 90 | −0.0467 | −1.88 | −0.916 | 38.2% |
+| reversal | 90 | +0.0467 | +1.88 | +0.916 | 61.8% |
 
-Buying last month's *losers* beat buying last month's winners by ~0.9%/month. Suggestive, not significant (p ≈ 0.06). Momentum and reversal are mirrors, so that is one finding, not two.
+**No detectable edge.** t = −0.65 across 90 independent dates — indistinguishable from random.
 
-**Model (`gemini-3.1-flash-lite`), 428 of 3,690 briefs:**
+The estimate wandered −0.008 → +0.010 → −0.013 → −0.015 as data accumulated, twice changing sign. That drift around zero is stronger evidence than any single reading.
 
-- **L1: zero wrong figures, zero invented labels** across 428 briefs
-- **L2 tier 1: zero fabricated citations, zero uncited claims**
-- Verdicts: 57% NEUTRAL, 34% BULLISH, 9% BEARISH
-- L3: pending
+`always_bullish` reports nothing on every metric. Under cross-sectional scoring its predictor is constant, so it is *unscoreable* rather than merely bad — the design making market drift unexploitable, which is the only reason the other numbers mean anything.
 
-**Pre-registered prediction**, recorded before any briefs existed: the model's verdicts track one-month momentum, so if it is merely re-reading momentum it should land near **−0.047**, not near zero.
+### The pre-registered prediction was falsified
+
+Recorded before any brief existed: an early 16-ticker probe showed verdicts tracking one-month momentum, so if the model were merely re-reading momentum it should land near **−0.047**.
+
+Final: **−0.0153** — a third of that, and statistically zero. The expected direction (no edge) held; the mechanism named for it did not. The probe was too small to generalise.
+
+### L1 — numeric grounding
+
+| | |
+|---|---|
+| briefs | 3,690 (0 failed, 0 unparsed) |
+| mean grounding | **0.9998** |
+| clean rate | 0.9989 |
+| briefs with a wrong figure | **4** |
+| briefs with an invented label | **0** |
+
+Four bad numbers in **17,628** cited figures — and **two are the same bug**:
+
+```
+NESTLEIND 2023-06-07   week52_low  cited 1,664,240   truth 16,642.40
+NESTLEIND 2023-07-07   week52_low  cited 1,779,505   truth 17,795.05
+TITAN     2020-09-18   change_pct_1d  cited  +3.37   truth  −1.59
+BAJFINANCE 2026-06-03  change_pct_1d  cited  −8.53   truth  −0.59
+```
+
+The two NESTLEIND failures are a ×100 decimal shift on the same field of the same stock — the one name in the universe trading in five figures. The TITAN case is a sign inversion: the model reported a 3.4% rise on a day the stock fell 1.6%.
+
+A substring-based grounding check would likely have passed the TITAN case, since `3.37` plausibly appears somewhere in a nine-figure snapshot. Field-aware checking is what catches a right-looking number attached to the wrong claim.
+
+### L2 — attribution (tier 1)
+
+| | |
+|---|---|
+| claims | **8,804** |
+| fabricated citations | **0** |
+| uncited claims | 1 |
+| citation validity | **0.9999** |
+
+Zero phantom filings across 8,804 claims.
+
+### What the three layers together show
+
+**The model is near-perfect at handling the data and worthless at judging it.** It copies figures accurately, never invents a source, cites correctly — and its verdicts predict nothing.
+
+That separation is only visible because L1, L2 and L3 were measured independently. A single "quality score" would have averaged a 0.9998 and a −0.0153 into something meaningless.
 
 ## Status
 
@@ -52,7 +96,7 @@ Buying last month's *losers* beat buying last month's winners by ~0.9%/month. Su
 | 4 | Grid, baselines, L3 cross-sectional scoring | done |
 | 5 | L2 attribution — tier 1 done, tier 2 falsified | partial |
 | 6 | Memorisation control, prose-vs-structured ablation | not started |
-| — | Full 3,690-brief run | 428 done, ~7 days at 500/day |
+| — | **Full 3,690-brief run** | **done** |
 
 ## The leaks this guards against
 
@@ -65,6 +109,8 @@ Buying last month's *losers* beat buying last month's winners by ~0.9%/month. Su
 Trading holidays need no calendar — `history()` returns only real trading rows, so "21 trading days" is 21 rows. `^NSEI` history *is* the NSE calendar.
 
 ## The leak tests
+
+Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; the sixth guards the disclosure cutoff in `tests/test_disclosure_selection.py`.
 
 1. No row after the cutoff is used — pinned against a known violent next day (Reliance fell ~7% on 2024-06-04).
 2. Reconstructed 52w high must *differ* from today's `info` — if they ever agree, someone wired `info` back in.
@@ -148,7 +194,7 @@ python -m app.cli RELIANCE --as-of 2024-06-03
 ## Known limitations
 
 - **Survivorship bias.** The universe is 41 Nifty-50-class names frozen at 2019. Freezing stops the bias growing at each rebalance; it does not remove it. TATAMOTORS is excluded because it demerged in 2025 and its BSE listing no longer resolves — itself a small bias, recorded rather than hidden.
-- **Verdict concentration.** At 57% NEUTRAL, the predictor has few distinct values. If that holds, L3 may be underpowered for the same structural reason `always_bullish` is unscoreable, and the honest finding becomes "too concentrated to test".
+- **Verdict concentration.** Final split: 56% NEUTRAL, 36% BULLISH, **8% BEARISH**. A three-valued predictor that is more than half one value has a low ceiling — a perfectly-ordered verdict across 41 names could not exceed roughly 0.95 rank correlation, and only 284 bearish calls across 90 dates means the long-short spread is thin or undefined on many of them. This is why rank correlation is the primary metric and the spread is secondary. The measured −0.0153 is far enough from any ceiling that concentration does not explain it, but a model with more directional conviction would be a better test of the harness.
 - **Confidence is useless.** The model emits only 3 or 4, never 1, 2 or 5. It is not used to weight anything.
 - **Administrative filings survive the noise filter.** Investor-conference notices are genuine filings carrying no information; a model citing one passes L2 tier 1 with a vacuous claim. Another argument for the entailment judge.
 - **P/E is deliberately absent.** EPS is not public until the report date, so using it earlier is a leak that looks like clean data.
