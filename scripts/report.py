@@ -54,7 +54,7 @@ def main(argv=None) -> int:
                  for b in BASELINES}
 
     rep = build_report(args.prompt_version, args.model or settings.llm_model, grid, baselines,
-                       disclosure_limit=settings.disclosure_limit)
+                       disclosure_limit=settings.disclosure_limit, cutoffs=cutoffs)
 
     print(f"grid: {stats['ok']}/{stats['expected']} cells  "
           f"({len(grid)} dates scoreable)\n")

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import date
 from functools import lru_cache
 
 import pandas as pd
@@ -30,6 +30,13 @@ FORWARD_TRADING_DAYS = 21
 # GDELT's usable depth. Probed 2026-09-13: 5 and 7 years back both returned
 # full result sets for Indian-source company queries.
 DEFAULT_START = date(2019, 1, 1)
+
+# The forward_end of the 90th window — the last outcome the v1 run scored.
+# Without this pin, `end` defaulted to today and every 21 trading days the
+# benchmark silently grew a window: by 2026-10-27 it expected 91, the report
+# refused to run, and a scheduled run_briefs had tried to fill the new cell.
+# A frozen benchmark is a fixed set of dates. Pass `end` explicitly to extend.
+BENCHMARK_END = date(2026, 9, 1)
 
 
 class CalendarError(RuntimeError):
@@ -75,7 +82,7 @@ def build_windows(
     A cutoff is kept only if `forward_days` trading days after it are already
     in the past — an unscored window is not a sample.
     """
-    end = end or datetime.now(timezone.utc).date()
+    end = end or BENCHMARK_END
     days = nse_trading_days(start, end)
     if len(days) < forward_days + 1:
         raise CalendarError(

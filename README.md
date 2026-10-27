@@ -119,8 +119,10 @@ Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; t
 5. Two cutoffs disagree — a snapshot is a function of its date, not of when it ran.
 6. No selected filing may carry a timestamp at or after the cutoff.
 
+`tests/test_frozen_v1.py` guards the result itself: the 90 cutoffs are committed, and the report recomputed from the local cache must equal `results-final.json` exactly. It exists because the benchmark once wasn't frozen — the window list ended at *today*, so a new window appeared every 21 trading days and the report stopped reproducing. The end is now pinned (`BENCHMARK_END`, 2026-09-01).
+
 ```powershell
-pytest -m "not network"   # 169 offline
+pytest -m "not network"   # 173 offline
 pytest                    # + live leak tests
 ```
 
@@ -208,5 +210,5 @@ evals/      grid, outcomes, baselines, scoring, number_check, attribution, repor
 llm/        prompts (versioned), brief parser, provider-agnostic client
 scripts/    build_grid, fetch_disclosures, run_baselines, run_briefs, report
 app/        cli, server + static dashboard, streamlit dashboard
-tests/      169 offline, plus live leak tests
+tests/      173 offline, plus live leak tests
 ```

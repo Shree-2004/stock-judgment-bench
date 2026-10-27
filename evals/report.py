@@ -50,7 +50,11 @@ class BriefRecord:
     error: str | None = None
 
 
-def load_briefs(prompt_version: str, model: str) -> list[BriefRecord]:
+def load_briefs(
+    prompt_version: str, model: str, cutoffs: set[str] | None = None,
+) -> list[BriefRecord]:
+    """`cutoffs` restricts to the benchmark's dates. Without it, any stray file
+    on disk — e.g. a cell for a window outside the frozen set — is counted."""
     from scripts.run_briefs import model_slug
     root = BRIEFS_ROOT / model_slug(model) / prompt_version
     out: list[BriefRecord] = []
@@ -58,6 +62,8 @@ def load_briefs(prompt_version: str, model: str) -> list[BriefRecord]:
         return out
 
     for path in sorted(root.rglob("*.json")):
+        if cutoffs is not None and path.stem not in cutoffs:
+            continue
         try:
             d = json.loads(path.read_text(encoding="utf-8"))
         except (ValueError, OSError):
@@ -183,8 +189,10 @@ def build_report(
     grid_by_date: dict[str, list[dict]],
     baseline_summaries: dict | None = None,
     disclosure_limit: int = 5,
+    cutoffs: list[date] | None = None,
 ) -> dict:
-    briefs = load_briefs(prompt_version, model)
+    wanted = {c.isoformat() for c in cutoffs} if cutoffs is not None else None
+    briefs = load_briefs(prompt_version, model, wanted)
     model_rows, join_stats = build_model_rows(briefs, grid_by_date)
     l3 = score_l3(f"model:{prompt_version}", model_rows)
 
