@@ -96,7 +96,45 @@ That separation is only visible because L1, L2 and L3 were measured independentl
 | 4 | Grid, baselines, L3 cross-sectional scoring | done |
 | 5 | L2 attribution — tier 1 done, tier 2 falsified | partial |
 | 6 | Memorisation control, prose-vs-structured ablation | not started |
-| — | **Full 3,690-brief run** | **done** |
+| — | **Full 3,690-brief run** | **done** — frozen as tag `v1.0` |
+| 2.0 / M1 | Live filing watcher (NSE RSS → SQLite → dashboard) | done |
+
+## Live: forward-only record (2.0)
+
+The v1 result is historical, and a model may have seen 2019–2026 in training. The only clean memorisation control is a forward record: predictions made before the outcome exists, stored so they cannot be edited. M1 is the first piece — the evidence feed those predictions will read.
+
+**M1 — filing watcher.** Polls NSE's official announcements RSS every 15 minutes and stores every item, exchange-wide, in `store/live.sqlite`.
+
+| Rule | How |
+|---|---|
+| A filing is stored once | `UNIQUE(provider, provider_ref)`; ref = hash of company, time, link, subject |
+| Stored filings never change | SQLite triggers abort any `UPDATE` or `DELETE` on `filings` |
+| Two clocks, never merged | `published_at` (exchange) and `first_seen_at` (this system). A prediction may only use a filing it had *seen* by its cutoff |
+| Every poll is logged | `job_runs`: fetched / inserted / duplicate / rejected / attempts / error |
+| Lost coverage is admitted | if a poll's oldest item is newer than everything stored, the gap is recorded |
+
+**Why NSE, not BSE.** On 2026-10-28 BSE's API returned an Akamai *Access Denied* to every request, historical windows included — an edge block. It is not worked around. NSE's RSS answers a plainly-identified client (a UA containing a URL is stalled until timeout; a plain one answers in 0.1 s).
+
+**What the feed turned out to be** — measured, and each one is a fixture in `tests/live/`:
+
+- a rolling window, not an archive: ~1,050 items covering **~6 hours** on a results-season evening. Nothing can be backfilled, hence the 15-minute poll and gap detection
+- no stable ID: one PDF link appeared 8 times at different seconds; 27 items had no link
+- two date shapes (`17:44:30`, `18:56`), occasionally missing; IST with no offset
+- items vanish from the middle: between two polls 90 s apart the feed shrank by 20 while its oldest item stayed put
+
+First live runs, 2026-10-28:
+
+```
+job 1  fetched 1070  inserted 1064  duplicate    5  rejected 1
+job 2  fetched 1070  inserted    0  duplicate 1069  rejected 1    <- identical rerun: zero new rows
+```
+
+```powershell
+python -m scripts.live_ingest                 # one poll
+python -m scripts.live_ingest --unmatched     # check company-name mapping
+streamlit run app/live_dashboard.py           # read-only view
+powershell -ExecutionPolicy Bypass -File scripts\register_live_task.ps1   # poll every 15 min
+```
 
 ## The leaks this guards against
 
@@ -122,7 +160,7 @@ Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; t
 `tests/test_frozen_v1.py` guards the result itself: the 90 cutoffs are committed, and the report recomputed from the local cache must equal `results-final.json` exactly. It exists because the benchmark once wasn't frozen — the window list ended at *today*, so a new window appeared every 21 trading days and the report stopped reproducing. The end is now pinned (`BENCHMARK_END`, 2026-09-01).
 
 ```powershell
-pytest -m "not network"   # 173 offline
+pytest -m "not network"   # 190 offline
 pytest                    # + live leak tests
 ```
 
@@ -210,5 +248,5 @@ evals/      grid, outcomes, baselines, scoring, number_check, attribution, repor
 llm/        prompts (versioned), brief parser, provider-agnostic client
 scripts/    build_grid, fetch_disclosures, run_baselines, run_briefs, report
 app/        cli, server + static dashboard, streamlit dashboard
-tests/      173 offline, plus live leak tests
+tests/      190 offline, plus live leak tests
 ```

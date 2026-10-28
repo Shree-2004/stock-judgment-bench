@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Poll B, observed 2026-10-28 18:30 IST. Overlaps A, adds one new filing and
+     one LATE filing: published 16:55, before A's newest item, but absent from A. -->
+<rss version="2.0"><channel>
+<title>NSE News - Latest Announcements</title>
+<item><title>Tata Consultancy Services Limited</title><link>https://nsearchives.nseindia.com/corporate/TCS_28102026182000_Buyback.pdf</link><description>Tata Consultancy Services Limited has informed the Exchange regarding Buy back. |SUBJECT: Buy back</description><pubDate>28-Oct-2026 18:20:00</pubDate></item>
+<item><title>Infosys Limited</title><link>https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_180_WebXMLFile_20261028_174429034.xml</link><description>INFOSYS LIMITED has informed the Exchange about Transcripts - earnings or quarterly calls</description><pubDate>28-Oct-2026 17:44:30</pubDate></item>
+<item><title>Infosys Limited</title><link>https://nsearchives.nseindia.com/corporate/Infosys_28102026173824_SE_filing_Earnings_call_transcript.pdf</link><description>Infosys Limited has informed the Exchange regarding 'Earnings Call Transcript'. |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates</description><pubDate>28-Oct-2026 17:38:42</pubDate></item>
+<item><title>Reliance Industries Limited</title><link>https://nsearchives.nseindia.com/corporate/RELIANCE_28102026172000_SE.pdf</link><description>Reliance Industries Limited has informed the Exchange regarding Press Release. |SUBJECT: Press Release</description><pubDate>28-OCT-2026 17:20</pubDate></item>
+<item><title>HDFC Bank Limited</title><link>https://nsearchives.nseindia.com/corporate/HDFCBANK_28102026165500_Allotment.pdf</link><description>HDFC Bank Limited has informed the Exchange regarding Allotment of ESOP. |SUBJECT: Allotment of ESOP / ESPS</description><pubDate>28-Oct-2026 16:55:00</pubDate></item>
+</channel></rss>

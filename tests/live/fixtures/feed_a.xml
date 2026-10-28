@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Poll A, observed 2026-10-28 18:00 IST. Shapes copied from the real feed
+     (28 Oct 2026); the edge cases are all ones that feed actually contained. -->
+<rss version="2.0"><channel>
+<title>NSE News - Latest Announcements</title>
+<lastBuildDate>Wed, 28 Oct 2026 18:00:00 +0530</lastBuildDate>
+
+<!-- future-dated: published tomorrow morning -> rejected -->
+<item><title>Fabtech Technologies Limited</title><link>https://nsearchives.nseindia.com/corporate/FABTECH_29102026090000_Outcome.pdf</link><description>Fabtech Technologies Limited has submitted to the Exchange, the financial results. |SUBJECT: Outcome of Board Meeting</description><pubDate>29-Oct-2026 09:00:00</pubDate></item>
+
+<item><title>Infosys Limited</title><link>https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_180_WebXMLFile_20261028_174429034.xml</link><description>INFOSYS LIMITED has informed the Exchange about Transcripts - earnings or quarterly calls</description><pubDate>28-Oct-2026 17:44:30</pubDate></item>
+<item><title>Infosys Limited</title><link>https://nsearchives.nseindia.com/corporate/Infosys_28102026173824_SE_filing_Earnings_call_transcript.pdf</link><description>Infosys Limited has informed the Exchange regarding 'Earnings Call Transcript'. |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates</description><pubDate>28-Oct-2026 17:38:42</pubDate></item>
+
+<!-- no link: price-movement notices never carry one -> accepted, url NULL -->
+<item><title>R.K. Fashion Accessories Limited</title><link></link><description>Significant movement in price has been observed in R.K. Fashion Accessories Limited.</description><pubDate>28-Oct-2026 17:33:17</pubDate></item>
+
+<!-- minute-only, upper-case month -> accepted -->
+<item><title>Reliance Industries Limited</title><link>https://nsearchives.nseindia.com/corporate/RELIANCE_28102026172000_SE.pdf</link><description>Reliance Industries Limited has informed the Exchange regarding Press Release. |SUBJECT: Press Release</description><pubDate>28-OCT-2026 17:20</pubDate></item>
+
+<!-- same link three times: two exact repeats (one filing) and one a second apart (a different filing) -->
+<item><title>Sammaan Finserve Limited</title><link>https://nsearchives.nseindia.com/corporate/SAMMAAN_RecordDate.pdf</link><description>Record Date Updates |SUBJECT: Record Date Updates</description><pubDate>28-Oct-2026 17:18:33</pubDate></item>
+<item><title>Sammaan Finserve Limited</title><link>https://nsearchives.nseindia.com/corporate/SAMMAAN_RecordDate.pdf</link><description>Record Date Updates |SUBJECT: Record Date Updates</description><pubDate>28-Oct-2026 17:18:33</pubDate></item>
+<item><title>Sammaan Finserve Limited</title><link>https://nsearchives.nseindia.com/corporate/SAMMAAN_RecordDate.pdf</link><description>Record Date Updates |SUBJECT: Record Date Updates</description><pubDate>28-Oct-2026 17:18:32</pubDate></item>
+
+<!-- malformed -> rejected -->
+<item><title>Hyundai Motor India Limited</title><link>https://nsearchives.nseindia.com/corporate/HMILNSE_28102026151721_PRESSRELEASE28102026.pdf</link><description>Press Release</description></item>
+<item><title></title><link>https://nsearchives.nseindia.com/corporate/UNKNOWN.pdf</link><description>orphan</description><pubDate>28-Oct-2026 17:10:00</pubDate></item>
+<item><title>ICICI Bank Limited</title><link>https://nsearchives.nseindia.com/corporate/ICICIBANK_x.pdf</link><description>garbled date</description><pubDate>yesterday-ish</pubDate></item>
+</channel></rss>
