@@ -40,11 +40,13 @@ The estimate wandered −0.008 → +0.010 → −0.013 → −0.015 as data accu
 
 `always_bullish` reports nothing on every metric. Under cross-sectional scoring its predictor is constant, so it is *unscoreable* rather than merely bad — the design making market drift unexploitable, which is the only reason the other numbers mean anything.
 
-### The pre-registered prediction was falsified
+### The pre-registered prediction was neither confirmed nor ruled out
 
 Recorded before any brief existed: an early 16-ticker probe showed verdicts tracking one-month momentum, so if the model were merely re-reading momentum it should land near **−0.047**.
 
-Final: **−0.0153** — a third of that, and statistically zero. The expected direction (no edge) held; the mechanism named for it did not. The probe was too small to generalise.
+Final: **−0.0153**, about a third of that and not distinguishable from zero. It is not distinguishable from −0.047 either. The standard error is 0.0235, so the 95% interval is **−0.061 to +0.031**. That interval contains both zero and the predicted −0.047, and the gap from the prediction is t = 1.34.
+
+So the benchmark answers the main question (no detectable edge) but cannot decide the mechanism. With 90 dates, the smallest correlation it can reliably detect is about |0.066| at 80% power, and the momentum and reversal baselines (±0.047) sit below that. An earlier version of this README said the prediction was "falsified". The numbers above do not support that, so the claim was withdrawn.
 
 ### L1 — numeric grounding
 
