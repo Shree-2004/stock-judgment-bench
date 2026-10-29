@@ -98,7 +98,7 @@ That separation is only visible because L1, L2 and L3 were measured independentl
 | 6 | Memorisation control, prose-vs-structured ablation | not started |
 | — | **Full 3,690-brief run** | **done** — frozen as tag `v1.0` |
 | 2.0 / M1 | Live filing watcher (NSE RSS → SQLite → dashboard) | done |
-| 2.0 / M2 | Rule-based filing categories + held-out hand labels | rules frozen; labels pending |
+| 2.0 / M2 | Rule-based filing categories, scored on a held-out sample | rules-v1 scored against AI-tool labels: 72% agreement |
 
 ## Live: forward-only record (2.0)
 
@@ -151,6 +151,23 @@ powershell -ExecutionPolicy Bypass -File scripts\register_live_task.ps1   # poll
 | `hard` | 20 | accuracy where it can actually fail: generic tags only |
 
 Accuracy is reported per stratum with a Wilson 95% interval. At n = 30, even 30/30 only bounds accuracy above about 89%.
+
+**Result (rules-v1, held-out sample of 2026-10-29).** The 50 rows were labelled by an **AI tool, not by hand**, so this is *agreement with a model labeller*, not accuracy against human ground truth:
+
+| stratum | agree | 95% CI |
+|---|---|---|
+| random | 22/30 (73%) | 56–86% |
+| hard | 14/20 (70%) | 48–86% |
+| all | 36/50 (72%) | 58–83% |
+
+The 14 disagreements, read one by one:
+
+- **6: the description is empty, and the answer is only in the PDF's filename.** Examples: `Updates |SUBJECT: Updates` linking to `…Investor_Presentation.pdf`, and "General Updates" linking to `…Buyback_Undertaking.pdf`. The rules read only the description, so they said `other`; the tool read the link.
+- **2: the code contradicts its own definition.** A board-meeting "outcome" that names no decision is defined as `board_meeting`, but the empty-text check runs first and sends it to `other`.
+- **2: rule misses.** "Axiro Semiconductor *Invests* in ThinSiC" isn't caught as a deal, and a truncated "disclosure under Regulation 30…" falls through to `business_update` when it should be `other`.
+- **4: the tool departs from the labelling guide.** It filed a newspaper reprint, a valuation report and two Reg 6(1)/7(1) filings as `other`; the guide puts them in routine compliance.
+
+So by the guide's own definitions, about 10 of the 50 are rule errors, and most of those come from one gap: the PDF filename carries information the rules don't read. Fixes belong in rules-v2, which must be scored on a **new** sample drawn after its own freeze. Re-scoring this sample after fixing it would be in-sample.
 
 ```powershell
 python -m scripts.label_filings stats     # category mix

@@ -141,13 +141,23 @@ def cmd_sample(args) -> int:
 
 
 def cmd_score(args) -> int:
-    if not SHEET.exists():
-        print("no label sheet yet; run `sample` first.")
+    sheet_path = args.sheet or SHEET
+    if not sheet_path.exists():
+        print(f"no label sheet at {sheet_path}; run `sample` first.")
         return 1
     meta = json.loads(SAMPLE.read_text(encoding="utf-8"))
     stratum = {ref: s for s, refs in meta["strata"].items() for ref in refs}
-    with SHEET.open(encoding="utf-8-sig", newline="") as f:
+    with sheet_path.open(encoding="utf-8-sig", newline="") as f:
         sheet = list(csv.DictReader(f))
+
+    foreign = [r["n"] for r in sheet if r["provider_ref"] not in stratum]
+    if foreign or len(sheet) != len(stratum):
+        print(f"{sheet_path.name} is not the drawn sample (rows not in it: {foreign or 'count differs'})")
+        return 1
+    score_path = SCORE if args.labeller == "human" else SCORE.with_name(f"m2_score_{args.labeller}.json")
+    if args.labeller != "human":
+        print(f"labeller: {args.labeller} — this measures agreement with that labeller, "
+              "not accuracy against hand labels.")
 
     bad = [(r["n"], r["label"]) for r in sheet
            if r["label"].strip() and r["label"].strip() not in CATEGORIES]
@@ -193,7 +203,9 @@ def cmd_score(args) -> int:
             print(f"  #{r['n']:>2} {r['label'].strip():19} <- {r['_pred']:19} {r['_rule']:24} "
                   f"{r['company'][:30]}")
 
-    SCORE.write_text(json.dumps({
+    score_path.write_text(json.dumps({
+        "labeller": args.labeller,
+        "sheet": sheet_path.name,
         "classifier_version": CLASSIFIER_VERSION,
         "rules_fingerprint": rules_fingerprint(),
         "held_out": held_out,
@@ -204,7 +216,7 @@ def cmd_score(args) -> int:
         "disagreements": [{"n": int(r["n"]), "provider_ref": r["provider_ref"], "gold": r["label"].strip(),
                            "predicted": r["_pred"], "rule": r["_rule"]} for r in wrong],
     }, indent=2) + "\n", encoding="utf-8")
-    print(f"\nwrote {SCORE.relative_to(ROOT)}")
+    print(f"\nwrote {score_path.relative_to(ROOT)}")
     return 0
 
 
@@ -217,7 +229,10 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("stats")
     sp = sub.add_parser("sample")
     sp.add_argument("--force", action="store_true")
-    sub.add_parser("score")
+    sc = sub.add_parser("score")
+    sc.add_argument("--sheet", type=Path, help="labelled sheet (default: the hand-label sheet)")
+    sc.add_argument("--labeller", choices=("human", "ai_tool"), default="human",
+                    help="who filled it in; recorded in the score so it cannot be misreported")
     args = ap.parse_args(argv)
     return {"stats": cmd_stats, "sample": cmd_sample, "score": cmd_score}[args.cmd](args)
 

@@ -238,6 +238,31 @@ def test_score_admits_when_rules_changed_after_sampling(lab, monkeypatch):
     assert json.loads(label_filings.SCORE.read_text(encoding="utf-8"))["held_out"] is False
 
 
+def test_tool_labels_are_scored_to_a_separate_file_and_marked(lab):
+    db, _ = lab
+    label_filings.main(["--db", str(db), "sample"])
+    tool = label_filings.SHEET.with_name("tool.csv")
+    tool.write_bytes(label_filings.SHEET.read_bytes())
+    _fill(tool, lambda r: classify(r["description"]).category)
+    assert label_filings.main(["--db", str(db), "score", "--sheet", str(tool), "--labeller", "ai_tool"]) == 0
+    assert not label_filings.SCORE.exists()                 # the human score is not overwritten
+    out = json.loads(label_filings.SCORE.with_name("m2_score_ai_tool.json").read_text(encoding="utf-8"))
+    assert out["labeller"] == "ai_tool"
+
+
+def test_score_refuses_a_sheet_that_is_not_the_sample(lab, tmp_path):
+    db, _ = lab
+    label_filings.main(["--db", str(db), "sample"])
+    rows = _sheet(label_filings.SHEET)
+    rows[0]["provider_ref"] = "0" * 64
+    other = tmp_path / "other.csv"
+    with other.open("w", newline="", encoding="utf-8-sig") as f:
+        w = csv.DictWriter(f, fieldnames=label_filings.COLUMNS)
+        w.writeheader()
+        w.writerows(rows)
+    assert label_filings.main(["--db", str(db), "score", "--sheet", str(other)]) == 1
+
+
 def test_wilson_interval():
     assert label_filings.wilson(0, 0) == (0.0, 1.0)
     lo, hi = label_filings.wilson(20, 20)

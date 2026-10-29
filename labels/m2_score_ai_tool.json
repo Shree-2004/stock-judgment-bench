@@ -1,0 +1,180 @@
+{
+  "labeller": "ai_tool",
+  "sheet": "m2_labels_tool.csv",
+  "classifier_version": "rules-v1",
+  "rules_fingerprint": "ff5cb4560164",
+  "held_out": true,
+  "labelled": 50,
+  "of": 50,
+  "strata": {
+    "random": {
+      "n": 30,
+      "correct": 22,
+      "accuracy": 0.7333,
+      "ci95": [
+        0.5555,
+        0.8582
+      ]
+    },
+    "hard": {
+      "n": 20,
+      "correct": 14,
+      "accuracy": 0.7,
+      "ci95": [
+        0.481,
+        0.8545
+      ]
+    },
+    "all": {
+      "n": 50,
+      "correct": 36,
+      "accuracy": 0.72,
+      "ci95": [
+        0.5833,
+        0.8253
+      ]
+    }
+  },
+  "confusion": [
+    {
+      "gold": "other",
+      "predicted": "routine_compliance",
+      "count": 4
+    },
+    {
+      "gold": "board_meeting",
+      "predicted": "other",
+      "count": 3
+    },
+    {
+      "gold": "investor_comms",
+      "predicted": "other",
+      "count": 2
+    },
+    {
+      "gold": "other",
+      "predicted": "business_update",
+      "count": 1
+    },
+    {
+      "gold": "deal",
+      "predicted": "business_update",
+      "count": 1
+    },
+    {
+      "gold": "management_change",
+      "predicted": "other",
+      "count": 1
+    },
+    {
+      "gold": "results",
+      "predicted": "other",
+      "count": 1
+    },
+    {
+      "gold": "corporate_action",
+      "predicted": "other",
+      "count": 1
+    }
+  ],
+  "disagreements": [
+    {
+      "n": 3,
+      "provider_ref": "0d92113bbb39e2657cb386846030cdb2060e703e1772fb033441522f5ca9b254",
+      "gold": "other",
+      "predicted": "routine_compliance",
+      "rule": "tag.compliance"
+    },
+    {
+      "n": 5,
+      "provider_ref": "dc3d7359e63fd49e694947f8fbf53b24bad9c6dc537f65c44b3d143ccc81ce38",
+      "gold": "board_meeting",
+      "predicted": "other",
+      "rule": "empty"
+    },
+    {
+      "n": 7,
+      "provider_ref": "8dd399505bc40be9ca49ba99cab10ceb344b4739f320a02ca27c36749118f2ed",
+      "gold": "investor_comms",
+      "predicted": "other",
+      "rule": "empty"
+    },
+    {
+      "n": 11,
+      "provider_ref": "d0cd5b73e0bab926d2a92a975fb3dcadef8b4a7ca5f46e3009fd5abf11d083d3",
+      "gold": "other",
+      "predicted": "business_update",
+      "rule": "fallback.general updates"
+    },
+    {
+      "n": 12,
+      "provider_ref": "d8857eb8db587877e82a7dbe4cca1073d4d5a1b9cc7a7b73b0e2a17d35268125",
+      "gold": "board_meeting",
+      "predicted": "other",
+      "rule": "empty"
+    },
+    {
+      "n": 14,
+      "provider_ref": "34c5e7ee3688332ca802e33f1df90c78d5a5fedf5afaaa23d61232b9ea67917d",
+      "gold": "deal",
+      "predicted": "business_update",
+      "rule": "fallback.press release"
+    },
+    {
+      "n": 20,
+      "provider_ref": "07ced031cdc6244023f98fb65f36cec1833750de00f41d6115608cd9272b4dd3",
+      "gold": "other",
+      "predicted": "routine_compliance",
+      "rule": "tag.compliance"
+    },
+    {
+      "n": 21,
+      "provider_ref": "e95da7668dbc763fce0dde0dc6007a0b9edad8ad475f0f0b2bf93726ed15b3f1",
+      "gold": "management_change",
+      "predicted": "other",
+      "rule": "empty"
+    },
+    {
+      "n": 29,
+      "provider_ref": "9db37e693314ad3396c115c45424bdea600edb78a0168fdb9ccf66918c81dbf2",
+      "gold": "results",
+      "predicted": "other",
+      "rule": "empty"
+    },
+    {
+      "n": 35,
+      "provider_ref": "612e1cfcf0c0e0fe278ba51da6c2ad82fd84241586ded63ae61d8ba249275b4d",
+      "gold": "investor_comms",
+      "predicted": "other",
+      "rule": "empty"
+    },
+    {
+      "n": 38,
+      "provider_ref": "a819a9d8ad1af2995b93f2ccd28fac65ec4e4a69a04f77934e54f0e1e5ef6a4f",
+      "gold": "corporate_action",
+      "predicted": "other",
+      "rule": "empty"
+    },
+    {
+      "n": 40,
+      "provider_ref": "e4d7d15d14f06d97cabd91a6a0eefafa514a071210be9d78037adee99b920439",
+      "gold": "other",
+      "predicted": "routine_compliance",
+      "rule": "tag.compliance"
+    },
+    {
+      "n": 41,
+      "provider_ref": "e507bfa6f90c7fcc7f9c10be8a807bd00eac283089ac02f5cbe6dbaa9f7e66cc",
+      "gold": "other",
+      "predicted": "routine_compliance",
+      "rule": "tag.compliance"
+    },
+    {
+      "n": 47,
+      "provider_ref": "6a2b5aef9251b54fde24152e08df3d42e7ac5e450370241f495fff4e3de596de",
+      "gold": "board_meeting",
+      "predicted": "other",
+      "rule": "empty"
+    }
+  ]
+}
