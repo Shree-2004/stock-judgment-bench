@@ -20,19 +20,32 @@ are a derived view, and a rule fix must not require rewriting history.
 label (the M3 ledger) can record which rules produced it.
 
 **Frozen before it was scored.** The rules were written from the tag counts of
-the first 1,460 filings and a sample of ~80 descriptions. The hand-label
-sample is drawn only from filings first seen after `RULES_FROZEN_AT`, so the
-classifier is scored on text it was not written against.
+the first 1,460 filings and a sample of ~80 descriptions. The label sample is
+drawn only from filings first seen after `RULES_FROZEN_AT`, so the classifier
+is scored on text it was not written against.
+
+**rules-v2** (changes from v1, each traced to a v1 disagreement on its
+held-out sample):
+- When the description says nothing, the PDF filename is read. In v1, 6 of 14
+  disagreements were filings like `Updates |SUBJECT: Updates` whose only
+  content was a link to `..._Investor_Presentation.pdf`.
+- An empty "Outcome of Board Meeting" is `board_meeting`, as the category
+  definition says. v1 checked for emptiness first and returned `other`.
+- "invests" is a deal, and the statutory preamble ("disclosure under
+  Regulation 30 of SEBI (LODR)...") counts as boilerplate, not content.
+v2 has its own freeze time and its own sample. Re-scoring the v1 sample with
+v2 would be in-sample.
 """
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import re
 from dataclasses import dataclass
 
-CLASSIFIER_VERSION = "rules-v1"
-RULES_FROZEN_AT = "2026-10-29T06:30:00+00:00"      # 12:00 IST
+CLASSIFIER_VERSION = "rules-v2"
+RULES_FROZEN_AT = "2026-10-29T10:30:00+00:00"      # 16:00 IST  (rules-v1: 06:30Z, 12:00 IST)
 
 CATEGORIES: dict[str, str] = {
     "results":            "financial results, results press releases, results updates",
@@ -58,6 +71,7 @@ GENERIC_TAGS: dict[str, str] = {
     "updates": "business_update",
     "general updates": "business_update",
     "material events": "business_update",
+    "disclosure of material issue": "business_update",
     "others": "other",
     "press release": "business_update",
     "press release (revised)": "business_update",
@@ -77,15 +91,18 @@ TAG_RULES: list[tuple[str, str, str]] = [
     ("tag.capital",     "capital_raise",       r"allotment|issue of securities|alteration of capital|fund raising|esop|esos|esps|options to purchase"),
     ("tag.deal",        "deal",                r"acquisition|sale or disposal|amalgamation|merger|scheme of arrangement|agreements|diversification|disinvestment"
                                                r"|restructuring|tie up"),
-    ("tag.business",    "business_update",     r"bagging|awarding of order|capacity addition|product launch|commencement of commercial|new line"),
-    ("tag.management",  "management_change",   r"director|resignation|appointment|change in management|cessation|retirement|demise"),
+    ("tag.business",    "business_update",     r"bagging|awarding of order|capacity addition|product launch|commencement of commercial|new line"
+                                               r"|commencement or postponement"),
+    ("tag.management",  "management_change",   r"director|resignation|appointment|change in management|cessation|retirement|demise|auditor"),
     ("tag.rating",      "credit_rating",       r"credit rating"),
-    ("tag.legal",       "legal_regulatory",    r"action\(s\) taken|actions initiated|orders passed|litigation|fraud|default"),
-    ("tag.debt",        "debt_and_proceeds",   r"redemption|payment of interest|security cover|regulation 5[0-2]|deviation|monitoring agency|utili[sz]ation|guarantee"),
+    ("tag.legal",       "legal_regulatory",    r"action\(s\) taken|actions initiated|orders passed|litigation|fraud|default|insolvency"),
+    ("tag.debt",        "debt_and_proceeds",   r"redemption|payment of interest|security cover|regulation 5[0-2]|deviation|monitoring agency|utili[sz]ation|guarantee"
+                                               r"|asset/liability"),
     ("tag.agm",         "shareholder_meeting", r"shareholders meeting|notice of shareholders"),
     ("tag.compliance",  "routine_compliance",  r"newspaper|trading window|certificate under|compliance report|regulation (6|7|13|23)\b"
                                                r"|integrated filing- governance|annual disclosure|committee meeting|aoa|moa"
-                                               r"|valuation report|noc|price movement|reasons for delayed|related party"),
+                                               r"|valuation report|noc|price movement|reasons for delayed|related party"
+                                               r"|movement in units|structural digital database|share certificate|takeover regulations"),
 ]
 
 # (rule id, category, pattern) — matched against the lower-cased free text,
@@ -99,7 +116,7 @@ TEXT_RULES: list[tuple[str, str, str]] = [
     ("text.rating",      "credit_rating",       r"credit rating"),
     ("text.legal",       "legal_regulatory",    r"\bfine\b|penalt|litigation|show cause|tribunal|\bnclt\b|\bcourt\b|\bfraud\b|\bdefault\b|cautionary"),
     ("text.deal",        "deal",                r"acqui|merger|amalgamation|demerger|scheme of arrangement|incorporation of .*subsidiary|joint venture|divest|open offer"
-                                               r"|investment in"),
+                                               r"|investment in|\binvests?\b"),
     ("text.business",    "business_update",     r"\border\b.*\b(worth|from|for)\b|secur(es|ed|ing) .*order|contract|letter of award|capacity|commission|launch|deployment|on-?hire|exports?\b|production"),
     ("text.corp_action", "corporate_action",    r"dividend|record date|bonus|sub-?division|split|buy-?back|rights issue"),
     ("text.capital",     "capital_raise",       r"allotment|esop|esos|exercise of options|options granted|fund rais|raising of .*funds|preferential|\bqip\b|warrants"),
@@ -113,10 +130,25 @@ TEXT_RULES: list[tuple[str, str, str]] = [
                                                r"|chief \w+ officer|senior management|designat"),
 ]
 
+# (rule id, category, pattern) — matched against the PDF filename, only when a
+# generic-tag description says nothing. Filenames squash words together
+# ("WILReg30PressreleaseQ2FY202627"), so patterns avoid word boundaries
+# except for short tokens. Management before board outcome: "BM_Outcome_for_CFO"
+# is about the CFO.
+URL_RULES: list[tuple[str, str, str]] = [
+    ("url.investor",    "investor_comms",    r"investor ?presentation|analyst|con ?call|earnings ?call|transcript"),
+    ("url.results",     "results",           r"result|q[1-4] ?fy|financial"),
+    ("url.corp_action", "corporate_action",  r"buy ?back|dividend|record ?date|bonus|split"),
+    ("url.deal",        "deal",              r"acqui|merger|amalgamation|invest"),
+    ("url.management",  "management_change", r"\b(cfo|ceo|kmp|coo)\b|director|appointment|resignation"),
+    ("url.bm",          "board_meeting",     r"outcome|\bbm\b|board ?meeting"),
+]
+
 _TAG_RULES = [(rid, cat, re.compile(p)) for rid, cat, p in TAG_RULES]
 _TEXT_RULES = [(rid, cat, re.compile(p)) for rid, cat, p in TEXT_RULES]
+_URL_RULES = [(rid, cat, re.compile(p)) for rid, cat, p in URL_RULES]
 
-assert {c for _, c, _ in TAG_RULES + TEXT_RULES} | set(GENERIC_TAGS.values()) <= set(CATEGORIES)
+assert {c for _, c, _ in TAG_RULES + TEXT_RULES + URL_RULES} | set(GENERIC_TAGS.values()) <= set(CATEGORIES)
 
 
 @dataclass(frozen=True)
@@ -143,7 +175,18 @@ def normalise_tag(tag: str) -> str:
     return " ".join(tag.split())
 
 
-def classify(subject: str) -> Classification:
+def url_words(url: str | None) -> str:
+    """`.../NIIF_IFL_Outcome_of_BM_29102026_sign.pdf` -> "niif ifl outcome of bm 29102026 sign".
+    NSE prefixes filenames with SYMBOL_DDMMYYYYHHMMSS_; that part is noise."""
+    if not isinstance(url, str) or not url:      # None, or NaN from a pandas column
+        return ""
+    name = url.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+    name = re.sub(r"^[A-Za-z0-9&]+_\d{14}_", "", name)
+    name = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", name)        # camelCase -> camel Case
+    return " ".join(re.split(r"[_\-.\s]+", name)).lower()
+
+
+def classify(subject: str, url: str | None = None) -> Classification:
     text, tag = split_subject(subject)
 
     if tag not in GENERIC_TAGS:
@@ -157,6 +200,12 @@ def classify(subject: str) -> Classification:
         if pat.search(low):
             return Classification(cat, rid)
     if says_little(low):
+        fname = url_words(url)
+        for rid, cat, pat in _URL_RULES:
+            if pat.search(fname):
+                return Classification(cat, rid)
+        if tag == "outcome of board meeting":
+            return Classification("board_meeting", "empty.outcome")
         return Classification("other", "empty")
     return Classification(GENERIC_TAGS[tag], f"fallback.{tag or 'no tag'}")
 
@@ -167,7 +216,8 @@ _BOILERPLATE = re.compile(
 _FILLER = set("""a an the of on in for to and by dated held regarding about intimation
     press release revised general update updates outcome board meeting others
     please find enclosed herewith attached copy being issued company
-    regulation regulations sebi lodr listing obligations disclosure requirements
+    regulation regulations sebi lodr listing obligations disclosure disclosures requirements
+    securities exchange india under pursuant read with schedule part iii
     january february march april may june july august september october november december""".split())
 
 
@@ -182,5 +232,6 @@ def says_little(low_text: str) -> bool:
 def rules_fingerprint() -> str:
     """Hash of everything that decides a label. The label sample records it, so
     a rule edit made after labelling is detected even if nobody bumps the version."""
-    blob = json.dumps([TAG_RULES, TEXT_RULES, GENERIC_TAGS, sorted(_FILLER), _BOILERPLATE.pattern])
+    blob = json.dumps([TAG_RULES, TEXT_RULES, URL_RULES, GENERIC_TAGS, sorted(_FILLER),
+                       _BOILERPLATE.pattern, inspect.getsource(classify), inspect.getsource(url_words)])
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:12]

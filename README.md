@@ -98,7 +98,7 @@ That separation is only visible because L1, L2 and L3 were measured independentl
 | 6 | Memorisation control, prose-vs-structured ablation | not started |
 | — | **Full 3,690-brief run** | **done** — frozen as tag `v1.0` |
 | 2.0 / M1 | Live filing watcher (NSE RSS → SQLite → dashboard) | done |
-| 2.0 / M2 | Rule-based filing categories, scored on a held-out sample | rules-v1 scored against AI-tool labels: 72% agreement |
+| 2.0 / M2 | Rule-based filing categories, scored on a held-out sample | v1: 72% agreement with AI-tool labels; v2 frozen 16:00 IST, sample pending |
 
 ## Live: forward-only record (2.0)
 
@@ -169,10 +169,19 @@ The 14 disagreements, read one by one:
 
 So by the guide's own definitions, about 10 of the 50 are rule errors, and most of those come from one gap: the PDF filename carries information the rules don't read. Fixes belong in rules-v2, which must be scored on a **new** sample drawn after its own freeze. Re-scoring this sample after fixing it would be in-sample.
 
+**rules-v2**, frozen at 2026-10-29 16:00 IST, makes these changes:
+- reads the PDF filename, but only when the description says nothing
+- labels an outcome that names no decision `board_meeting`
+- adds "invests" to the deal rule
+- treats the statutory Regulation 30 preamble as boilerplate
+- maps 10 NSE tags that first appeared after the v1 freeze
+
+It is not re-scored on the v1 sample. Its own sample comes from filings first seen after 16:00 IST, and its files live in `labels/rules-v2/`.
+
 ```powershell
 python -m scripts.label_filings stats     # category mix
 python -m scripts.label_filings sample    # draw the sheet once enough post-freeze filings exist
-python -m scripts.label_filings score     # after filling labels/m2_label_sheet.csv (guide: labels/README.md)
+python -m scripts.label_filings score     # after filling labels/<rules-version>/label_sheet.csv (guide: labels/README.md)
 ```
 
 ## The leaks this guards against

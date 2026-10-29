@@ -39,10 +39,10 @@ from live.classify import (CATEGORIES, CLASSIFIER_VERSION, GENERIC_TAGS, RULES_F
 from live.filings import IST
 
 ROOT = Path(__file__).resolve().parent.parent
-LABEL_DIR = ROOT / "labels"
-SHEET = LABEL_DIR / "m2_label_sheet.csv"
-SAMPLE = LABEL_DIR / "m2_sample.json"
-SCORE = LABEL_DIR / "m2_score.json"
+LABEL_DIR = ROOT / "labels" / CLASSIFIER_VERSION      # one folder per rule set: a sample belongs to the rules it tests
+SHEET = LABEL_DIR / "label_sheet.csv"
+SAMPLE = LABEL_DIR / "sample.json"
+SCORE = LABEL_DIR / "score.json"
 
 SEED = 20261029
 N_RANDOM, N_HARD = 30, 20
@@ -70,7 +70,7 @@ def load_rows(db: Path) -> list[dict]:
 
 def cmd_stats(args) -> int:
     rows = load_rows(args.db)
-    labels = [classify(r["subject"]) for r in rows]
+    labels = [classify(r["subject"], r["url"]) for r in rows]
     cats = Counter(c.category for c in labels)
     print(f"{len(rows):,} filings, rules {CLASSIFIER_VERSION}\n")
     for cat in CATEGORIES:
@@ -110,7 +110,7 @@ def cmd_sample(args) -> int:
     rows = [("hard", r) for r in hard] + [("random", r) for r in rand]
     rng.shuffle(rows)
 
-    LABEL_DIR.mkdir(exist_ok=True)
+    LABEL_DIR.mkdir(parents=True, exist_ok=True)
     with SHEET.open("w", newline="", encoding="utf-8-sig") as f:    # BOM: Excel reads ₹ correctly
         w = csv.DictWriter(f, fieldnames=COLUMNS)
         w.writeheader()
@@ -154,7 +154,7 @@ def cmd_score(args) -> int:
     if foreign or len(sheet) != len(stratum):
         print(f"{sheet_path.name} is not the drawn sample (rows not in it: {foreign or 'count differs'})")
         return 1
-    score_path = SCORE if args.labeller == "human" else SCORE.with_name(f"m2_score_{args.labeller}.json")
+    score_path = SCORE if args.labeller == "human" else SCORE.with_name(f"score_{args.labeller}.json")
     if args.labeller != "human":
         print(f"labeller: {args.labeller} — this measures agreement with that labeller, "
               "not accuracy against hand labels.")
@@ -179,7 +179,7 @@ def cmd_score(args) -> int:
 
     results, wrong = {}, []
     for r in done:
-        pred = classify(r["description"])
+        pred = classify(r["description"], r["url"] or None)
         gold = r["label"].strip()
         r["_pred"], r["_rule"], r["_ok"] = pred.category, pred.rule, pred.category == gold
         if not r["_ok"]:

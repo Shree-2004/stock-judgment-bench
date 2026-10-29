@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import csv
 import json
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -77,9 +78,18 @@ CASES = [
      "other", "empty"),
     ("Gokul Agro Resources Limited has informed the Exchange regarding a press release dated October 28, 2026, "
      "titled \"Press Release\"." + S + "Press Release", "other", "empty"),
+    # an outcome that names no decision is board_meeting by definition (v1 said other)
     ("Rite Zone Chemcon India Limited has informed the Exchange regarding Outcome of Board Meeting held on "
-     "October 28, 2026." + S + "Outcome of Board Meeting", "other", "empty"),
-    ("Outcome of Board Meeting" + S + "Outcome of Board Meeting", "other", "empty"),
+     "October 28, 2026." + S + "Outcome of Board Meeting", "board_meeting", "empty.outcome"),
+    ("Outcome of Board Meeting" + S + "Outcome of Board Meeting", "board_meeting", "empty.outcome"),
+    # statutory preamble cut off mid-sentence says nothing (v1: business_update)
+    ("Bajaj Electricals Limited has informed the Exchange about disclosure under Regulation 30 of Securities and "
+     "Exchange Board of India (Listing Obligations and Disclosures Requirements) Regulations, 2015," + S
+     + "General Updates", "other", "empty"),
+    # (v1: business_update)
+    ("CG Power and Industrial Solutions Limited has informed the Exchange regarding a press release dated "
+     "October 29, 2026, titled \"Axiro Semiconductor Invests in ThinSiC to Strengthen Position\"." + S
+     + "Press Release", "deal", "text.deal"),
     # no tag at all (price-movement notices)
     ("Significant movement in price has been observed in R.K. Fashion Accessories Limited.",
      "routine_compliance", "text.compliance"),
@@ -90,6 +100,50 @@ CASES = [
 def test_real_descriptions(subject, category, rule):
     got = classify(subject)
     assert (got.category, got.rule) == (category, rule)
+
+
+# Empty description, content only in the PDF filename — the v1 failure mode.
+# Real filenames from the v1 sample; the descriptions are exactly as filed.
+P = "https://nsearchives.nseindia.com/corporate/"
+URL_CASES = [
+    ("Updates" + S + "Updates", P + "esfb_29102026135945_SEIntimation_Investor_Presentation.pdf",
+     "investor_comms", "url.investor"),
+    ("Updates" + S + "Updates", P + "IDFCIDFL_29102026142218_NIIF_IFL_Outcome_of_BM_29102026_sign.pdf",
+     "board_meeting", "url.bm"),
+    ("Srivasavi Adhesive Tapes Limited has informed the Exchange regarding Outcome of Board Meeting held on "
+     "October 29, 2026." + S + "Outcome of Board Meeting", P + "SRIVASAVI_29102026142254_BM_Outcome_for_CFO.pdf",
+     "management_change", "url.management"),
+    ("Wheels India Limited has informed the Exchange regarding a press release dated October 29, 2026, titled "
+     "\"Press Release\"." + S + "Press Release", P + "WHEELS_29102026144308_WILReg30PressreleaseQ2FY202627.pdf",
+     "results", "url.results"),
+    ("Atul Limited has informed the Exchange about General Updates" + S + "General Updates",
+     P + "ATUL1_29102026140840_1_AL_-_NSE_Buyback_Undertaking.pdf", "corporate_action", "url.corp_action"),
+    # the filename says nothing either -> unchanged
+    ("Popular Vehicles and Services Limited has informed the Exchange regarding Outcome of Board Meeting held on "
+     "October 29, 2026." + S + "Outcome of Board Meeting", P + "9072530155_29102026130826_IntimationSE_SD.pdf",
+     "board_meeting", "empty.outcome"),
+    ("Pidilite Industries Limited has informed the Exchange about General Updates" + S + "General Updates",
+     None, "other", "empty"),
+]
+
+
+@pytest.mark.parametrize("subject,url,category,rule", URL_CASES, ids=[r for *_, r in URL_CASES])
+def test_filename_is_read_only_when_the_description_is_empty(subject, url, category, rule):
+    got = classify(subject, url)
+    assert (got.category, got.rule) == (category, rule)
+
+
+def test_filename_never_overrides_a_description_that_says_something():
+    subject = ("Jupiter Wagons Limited has informed the Exchange about securing order for 2,583 wagons worth "
+               "INR 1,140 crore from the Ministry of Railways." + S + "General Updates")
+    assert classify(subject, P + "JWL_29102026_Investor_Presentation.pdf").category == "business_update"
+
+
+def test_url_words_handles_missing_and_nan():
+    from live.classify import url_words
+    assert url_words(None) == "" and url_words(float("nan")) == ""
+    assert url_words(P + "WHEELS_29102026144308_WILReg30PressreleaseQ2FY202627.pdf") == \
+        "wilreg30pressrelease q2fy202627"          # squashed words stay squashed; URL_RULES allow for it
 
 
 def test_every_category_except_other_has_a_case():
@@ -128,7 +182,8 @@ def test_fingerprint_moves_when_a_rule_moves(monkeypatch):
 # ---------------------------------------------------------------------------
 
 FROZEN = classify_mod.RULES_FROZEN_AT
-BEFORE, AFTER = "2026-10-29T06:00:00+00:00", "2026-10-29T09:00:00+00:00"
+_F = datetime.fromisoformat(FROZEN)
+BEFORE, AFTER = (_F - timedelta(hours=1)).isoformat(), (_F + timedelta(hours=2)).isoformat()
 
 
 def _rec(i: int, subject: str) -> FilingRecord:
@@ -213,7 +268,7 @@ def test_score_reports_strata_and_disagreements(lab):
     label_filings.main(["--db", str(db), "sample"])
     # the labeller agrees with the rules except on every generic-tag filing
     _fill(label_filings.SHEET,
-          lambda r: "other" if "General Updates" in r["description"] else classify(r["description"]).category)
+          lambda r: "other" if "General Updates" in r["description"] else classify(r["description"], r["url"] or None).category)
     assert label_filings.main(["--db", str(db), "score"]) == 0
     score = json.loads(label_filings.SCORE.read_text(encoding="utf-8"))
     assert score["held_out"] is True
@@ -232,7 +287,7 @@ def test_score_rejects_labels_outside_the_taxonomy(lab):
 def test_score_admits_when_rules_changed_after_sampling(lab, monkeypatch):
     db, _ = lab
     label_filings.main(["--db", str(db), "sample"])
-    _fill(label_filings.SHEET, lambda r: classify(r["description"]).category)
+    _fill(label_filings.SHEET, lambda r: classify(r["description"], r["url"] or None).category)
     monkeypatch.setattr(classify_mod, "TEXT_RULES", classify_mod.TEXT_RULES[:-1])
     label_filings.main(["--db", str(db), "score"])
     assert json.loads(label_filings.SCORE.read_text(encoding="utf-8"))["held_out"] is False
@@ -243,10 +298,10 @@ def test_tool_labels_are_scored_to_a_separate_file_and_marked(lab):
     label_filings.main(["--db", str(db), "sample"])
     tool = label_filings.SHEET.with_name("tool.csv")
     tool.write_bytes(label_filings.SHEET.read_bytes())
-    _fill(tool, lambda r: classify(r["description"]).category)
+    _fill(tool, lambda r: classify(r["description"], r["url"] or None).category)
     assert label_filings.main(["--db", str(db), "score", "--sheet", str(tool), "--labeller", "ai_tool"]) == 0
     assert not label_filings.SCORE.exists()                 # the human score is not overwritten
-    out = json.loads(label_filings.SCORE.with_name("m2_score_ai_tool.json").read_text(encoding="utf-8"))
+    out = json.loads(label_filings.SCORE.with_name("score_ai_tool.json").read_text(encoding="utf-8"))
     assert out["labeller"] == "ai_tool"
 
 

@@ -1,8 +1,8 @@
-# M2 label sheet
+# M2 label sheets
 
-`m2_label_sheet.csv` holds 50 NSE filings that arrived **after** the rules were frozen. Fill in the `label` column for each one with a single category from the table below, typed exactly as shown. The sheet deliberately leaves out the rules' answer. Label from the description, and open the `url` when the description is too vague to tell.
+Each rule version has its own folder (`rules-v1/`, `rules-v2/`). Each folder holds a `label_sheet.csv` of 50 NSE filings that arrived **after** that version's rules were frozen. Fill in the `label` column for each one with a single category from the table below, typed exactly as shown. The sheet deliberately leaves out the rules' answer. Label from the description, and open the `url` when the description is too vague to tell.
 
-When you're done, run `python -m scripts.label_filings score`.
+When you're done, run `python -m scripts.label_filings score`. If the labels came from an AI tool, add `--sheet <file> --labeller ai_tool`.
 
 ## One question decides it
 
@@ -38,14 +38,15 @@ Label the filing by its new information, not by its form. A newspaper reprint of
 
 ## Who labelled what
 
-| file | labeller | role |
+| file | labeller | status |
 |---|---|---|
-| `m2_label_sheet.csv` | the author, by hand, without looking at the file below | **gold**: the classifier is scored against this |
-| `m2_labels_tool.csv` | an AI tool (2026-10-29 15:34 IST), before any human labels or scores | secondary: reported as tool-vs-human agreement only, never as hand labels |
+| `rules-v1/labels_ai_tool.csv` | an AI tool (2026-10-29 15:34 IST) | scored: 36/50 agreement (`rules-v1/score_ai_tool.json`) |
+| `rules-v1/label_sheet.csv` | — | left blank; nobody hand-labelled v1 |
+| `rules-v2/label_sheet.csv` | to be drawn after 16:00 IST on 2026-10-29 | pending |
 
-The tool labels were committed before the hand labels were made, so git shows they couldn't have been copied from the hand labels or from a score.
+Every score file records who labelled the sheet (`"labeller"`). Agreement with AI-tool labels is reported as exactly that, never as accuracy against hand labels.
 
 ## Rules for the sample itself
 
-- The sample is drawn **once** (fixed seed, `m2_sample.json`). Don't redraw it to get a better set.
+- The sample is drawn **once** (fixed seed, `sample.json`). Don't redraw it to get a better set.
 - The first score is the result. If the rules are changed after you've seen the disagreements, the next score is in-sample, and `score` will say so.

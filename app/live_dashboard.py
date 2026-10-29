@@ -85,7 +85,7 @@ if not gaps.empty:
 
 # --- tracked companies -----------------------------------------------------
 filings["symbol"] = filings.company.map(tracked_symbol)
-filings["category"] = filings.subject.map(lambda s: classify(s).category)
+filings["category"] = [classify(s, u).category for s, u in zip(filings.subject, filings.url)]
 
 
 def table(df: pd.DataFrame) -> None:
