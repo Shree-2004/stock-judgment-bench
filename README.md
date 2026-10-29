@@ -98,6 +98,7 @@ That separation is only visible because L1, L2 and L3 were measured independentl
 | 6 | Memorisation control, prose-vs-structured ablation | not started |
 | — | **Full 3,690-brief run** | **done** — frozen as tag `v1.0` |
 | 2.0 / M1 | Live filing watcher (NSE RSS → SQLite → dashboard) | done |
+| 2.0 / M2 | Rule-based filing categories + held-out hand labels | rules frozen; labels pending |
 
 ## Live: forward-only record (2.0)
 
@@ -136,6 +137,27 @@ streamlit run app/live_dashboard.py           # read-only view
 powershell -ExecutionPolicy Bypass -File scripts\register_live_task.ps1   # poll every 15 min
 ```
 
+**M2 — what kind of filing is it?** Each filing gets one of 15 categories (`live/classify.py`), decided by one question: *what new information does this give a holder?* A newspaper reprint of results is routine compliance, not results.
+
+- The NSE subject tag settles **1,216 of the first 1,474** filings (82%). The rest carry a tag that says nothing ("Updates", "Press Release", "Outcome of Board Meeting"), and those are read from the free text.
+- A filing that says nothing ("X has informed the Exchange about General Updates") is labelled `other`, not guessed at.
+- Every label names the rule that produced it, and labels are computed on read. The store stays append-only, and fixing a rule never rewrites history.
+
+**The rules are scored on text they never saw.** They were written against filings seen up to `RULES_FROZEN_AT` (2026-10-29 12:00 IST). The 50-filing hand-label sample is drawn only from filings first seen after that time. The sheet doesn't show the rules' answer, the draw is seeded and done once, and the sample records a fingerprint of the rules. If any rule changes after labelling, `score` reports the result as in-sample.
+
+| stratum | n | what it measures |
+|---|---|---|
+| `random` | 30 | accuracy on company filings as a whole (NAVs excluded by raw tag) |
+| `hard` | 20 | accuracy where it can actually fail: generic tags only |
+
+Accuracy is reported per stratum with a Wilson 95% interval. At n = 30, even 30/30 only bounds accuracy above about 89%.
+
+```powershell
+python -m scripts.label_filings stats     # category mix
+python -m scripts.label_filings sample    # draw the sheet once enough post-freeze filings exist
+python -m scripts.label_filings score     # after filling labels/m2_label_sheet.csv (guide: labels/README.md)
+```
+
 ## The leaks this guards against
 
 **1. `info` and `fast_info` are always *now*.** AAPL's 52-week high read today is $344.57; reconstructed as of 2025-11-03 it was **$271.40**. A model given the former is told the stock sits 21% below its high when it was sitting near it — an inverted signal, delivered as fact. Everything comes from `history()` instead.
@@ -160,7 +182,7 @@ Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; t
 `tests/test_frozen_v1.py` guards the result itself: the 90 cutoffs are committed, and the report recomputed from the local cache must equal `results-final.json` exactly. It exists because the benchmark once wasn't frozen — the window list ended at *today*, so a new window appeared every 21 trading days and the report stopped reproducing. The end is now pinned (`BENCHMARK_END`, 2026-09-01).
 
 ```powershell
-pytest -m "not network"   # 190 offline
+pytest -m "not network"   # 232 offline
 pytest                    # + live leak tests
 ```
 
@@ -248,5 +270,5 @@ evals/      grid, outcomes, baselines, scoring, number_check, attribution, repor
 llm/        prompts (versioned), brief parser, provider-agnostic client
 scripts/    build_grid, fetch_disclosures, run_baselines, run_briefs, report
 app/        cli, server + static dashboard, streamlit dashboard
-tests/      190 offline, plus live leak tests
+tests/      232 offline, plus live leak tests
 ```

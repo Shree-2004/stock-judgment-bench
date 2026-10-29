@@ -22,6 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from live import store                                        # noqa: E402
+from live.classify import CATEGORIES, CLASSIFIER_VERSION, classify  # noqa: E402
 from live.filings import DEFAULT_SYMBOLS, IST, NSE_NAMES, tracked_symbol  # noqa: E402
 from live.ingest import JOB_TYPE                              # noqa: E402
 
@@ -84,6 +85,7 @@ if not gaps.empty:
 
 # --- tracked companies -----------------------------------------------------
 filings["symbol"] = filings.company.map(tracked_symbol)
+filings["category"] = filings.subject.map(lambda s: classify(s).category)
 
 
 def table(df: pd.DataFrame) -> None:
@@ -91,6 +93,7 @@ def table(df: pd.DataFrame) -> None:
         "published (exchange)": df.published_at.map(ist),
         "first seen (here)": df.first_seen_at.map(ist),
         "company": df.company,
+        "category": df.category,
         "subject": df.subject,
         "source": df.url,
     })
@@ -109,8 +112,12 @@ for tab, sym in zip(tabs, DEFAULT_SYMBOLS):
             table(rows)
 
 st.subheader("All exchange filings")
-q = st.text_input("Filter by company or subject")
-allf = filings
+fq, fc = st.columns([2, 1])
+q = fq.text_input("Filter by company or subject")
+cats = fc.multiselect("Category", list(CATEGORIES), default=[c for c in CATEGORIES if c != "fund_nav"],
+                      help=f"Rule-based ({CLASSIFIER_VERSION}); see labels/README.md. "
+                           "Fund NAVs are hidden by default.")
+allf = filings[filings.category.isin(cats)]
 if q:
     mask = allf.company.str.contains(q, case=False) | allf.subject.str.contains(q, case=False)
     allf = allf[mask]
