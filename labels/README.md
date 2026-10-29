@@ -36,6 +36,15 @@ Label the filing by its new information, not by its form. A newspaper reprint of
 - **Too vague to tell:** if the description is vague, look at the PDF. If the PDF is unclear too, use `other`. Don't guess from the company name.
 - **Use `notes`** whenever you hesitated. The rows you hesitated on are the useful ones when reading the disagreements.
 
+## Who labelled what
+
+| file | labeller | role |
+|---|---|---|
+| `m2_label_sheet.csv` | the author, by hand, without looking at the file below | **gold**: the classifier is scored against this |
+| `m2_labels_tool.csv` | an AI tool (2026-10-29 15:34 IST), before any human labels or scores | secondary: reported as tool-vs-human agreement only, never as hand labels |
+
+The tool labels were committed before the hand labels were made, so git shows they couldn't have been copied from the hand labels or from a score.
+
 ## Rules for the sample itself
 
 - The sample is drawn **once** (fixed seed, `m2_sample.json`). Don't redraw it to get a better set.
