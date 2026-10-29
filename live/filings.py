@@ -38,17 +38,60 @@ PROVIDER_NSE_RSS = "nse_rss"
 
 _DATE_FORMATS = ("%d-%b-%Y %H:%M:%S", "%d-%b-%Y %H:%M")
 
-# NSE's printed company names for the M1 watch list. Checked against the feed
-# for Infosys; the rest follow the same "<Registered name> Limited" pattern and
-# are verified by `scripts.live_ingest --unmatched` once each one files.
+# NSE's printed company names for the 41-stock universe (data/universe.py).
+# Registered names; the ones marked SEEN appeared verbatim in the feed by
+# 2026-10-29. The rest are checked by `scripts.live_ingest --unmatched` as they
+# file — a wrong name fails safe (that stock simply shows no filings) and the
+# ledger records how many filings each prediction saw, so it is visible.
 NSE_NAMES: dict[str, str] = {
-    "RELIANCE": "Reliance Industries Limited",
-    "TCS": "Tata Consultancy Services Limited",
-    "INFY": "Infosys Limited",
-    "HDFCBANK": "HDFC Bank Limited",
-    "ICICIBANK": "ICICI Bank Limited",
+    "RELIANCE":   "Reliance Industries Limited",              # SEEN
+    "TCS":        "Tata Consultancy Services Limited",
+    "HDFCBANK":   "HDFC Bank Limited",
+    "INFY":       "Infosys Limited",                          # SEEN
+    "ICICIBANK":  "ICICI Bank Limited",
+    "HINDUNILVR": "Hindustan Unilever Limited",               # SEEN
+    "ITC":        "ITC Limited",
+    "SBIN":       "State Bank of India",
+    "BHARTIARTL": "Bharti Airtel Limited",                    # SEEN
+    "KOTAKBANK":  "Kotak Mahindra Bank Limited",
+    "LT":         "Larsen & Toubro Limited",                  # SEEN
+    "AXISBANK":   "Axis Bank Limited",
+    "ASIANPAINT": "Asian Paints Limited",                     # SEEN
+    "MARUTI":     "Maruti Suzuki India Limited",              # SEEN
+    "BAJFINANCE": "Bajaj Finance Limited",
+    "TITAN":      "Titan Company Limited",                    # SEEN
+    "SUNPHARMA":  "Sun Pharmaceutical Industries Limited",
+    "ULTRACEMCO": "UltraTech Cement Limited",
+    "WIPRO":      "Wipro Limited",
+    "NESTLEIND":  "Nestle India Limited",
+    "TATASTEEL":  "Tata Steel Limited",
+    "POWERGRID":  "Power Grid Corporation of India Limited",  # SEEN
+    "NTPC":       "NTPC Limited",                             # SEEN
+    "ONGC":       "Oil and Natural Gas Corporation Limited",
+    "M&M":        "Mahindra & Mahindra Limited",
+    "HCLTECH":    "HCL Technologies Limited",
+    "JSWSTEEL":   "JSW Steel Limited",                        # SEEN
+    "INDUSINDBK": "IndusInd Bank Limited",
+    "GRASIM":     "Grasim Industries Limited",
+    "BAJAJFINSV": "Bajaj Finserv Limited",
+    "DRREDDY":    "Dr. Reddy's Laboratories Limited",         # SEEN
+    "CIPLA":      "Cipla Limited",                            # SEEN
+    "BRITANNIA":  "Britannia Industries Limited",
+    "EICHERMOT":  "Eicher Motors Limited",
+    "COALINDIA":  "Coal India Limited",
+    "HEROMOTOCO": "Hero MotoCorp Limited",                    # SEEN
+    "BPCL":       "Bharat Petroleum Corporation Limited",
+    "TECHM":      "Tech Mahindra Limited",
+    "ADANIPORTS": "Adani Ports and Special Economic Zone Limited",
+    "HINDALCO":   "Hindalco Industries Limited",              # SEEN
+    "UPL":        "UPL Limited",
 }
-DEFAULT_SYMBOLS = tuple(NSE_NAMES)
+# Spellings NSE is known to use besides the registered one.
+NSE_ALIASES: dict[str, str] = {
+    "Oil & Natural Gas Corporation Limited": "ONGC",
+}
+# The dashboard's tabs; the ledger covers all of NSE_NAMES.
+DEFAULT_SYMBOLS = ("RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK")
 
 
 @dataclass(frozen=True)
@@ -135,7 +178,7 @@ def _norm(name: str) -> str:
     return " ".join(name.split())
 
 
-_BY_NORM = {_norm(n): s for s, n in NSE_NAMES.items()}
+_BY_NORM = {_norm(n): s for s, n in NSE_NAMES.items()} | {_norm(n): s for n, s in NSE_ALIASES.items()}
 
 
 def tracked_symbol(company: str) -> str | None:

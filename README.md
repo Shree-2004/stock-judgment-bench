@@ -99,6 +99,7 @@ That separation is only visible because L1, L2 and L3 were measured independentl
 | — | **Full 3,690-brief run** | **done** — frozen as tag `v1.0` |
 | 2.0 / M1 | Live filing watcher (NSE RSS → SQLite → dashboard) | done |
 | 2.0 / M2 | Rule-based filing categories, scored on a held-out sample | v1: 72% agreement with AI-tool labels; v2 frozen 16:00 IST, sample pending |
+| 2.0 / M3 | Forward ledger: 41 stocks daily, hash-chained, witnessed in git | built; first round 2026-10-29 |
 
 ## Live: forward-only record (2.0)
 
@@ -184,6 +185,32 @@ python -m scripts.label_filings sample    # draw the sheet once enough post-free
 python -m scripts.label_filings score     # after filling labels/<rules-version>/label_sheet.csv (guide: labels/README.md)
 ```
 
+**M3 — the forward ledger.** Every trading day after the close, one prediction per stock is made for all 41 stocks, with the same prompt (`v1_structured`) and model as v1. Each one is appended to `predictions` in `store/live.sqlite` (`live/ledger.py`). Its outcome doesn't exist yet, so no model can have seen it in training.
+
+| Rule | How |
+|---|---|
+| Rows never change | SQLite triggers abort `UPDATE` and `DELETE` |
+| Tampering is detectable | each row stores `prev_hash` and `entry_hash = sha256(prev_hash + row)`, and `--verify` recomputes the chain. A test edits a row behind the triggers' back and checks that the break is caught |
+| Git witnesses it | after each round, the head hash is appended to `ledger/chain.txt` and committed on master. Once pushed, rewriting a prediction means rewriting public history |
+| No stale prices | a round runs only if ^NSEI has posted *today's* close (IST). It is never silently based on yesterday's |
+| Point-in-time evidence | only filings with `first_seen_at` ≤ the prediction's `made_at`, from the last 21 days. Routine compliance and NAVs are dropped, and the newest 5 distinct headlines are kept (v1's rule) |
+| Failures are rows | an error is recorded with its evidence. A rerun appends `attempt + 1` and never touches a stock that succeeded. A quota stop leaves no row for the interrupted stock |
+
+**Analysis plan, fixed 2026-10-29, before any outcome exists:**
+
+1. *Outcome:* the 21-trading-session forward return from the close the prediction read, with the same `evals/outcomes.py` and `evals/scoring.py` as v1 (M4 must reproduce v1's numbers when replayed on v1 data).
+2. *Excluded:* warm-up sessions before **2026-11-18**. The filing store began 2026-10-28, so earlier rounds can't have 21 days of evidence. Also excluded is any row made after the next session opened.
+3. *Primary:* the mean per-session Spearman correlation between verdict and forward return. It is computed over **non-overlapping** sessions: the first non-warm-up session, then every 21st session after it. This is v1's metric, so the two are directly comparable.
+4. *Secondary:* the same over every session, with a standard error that accounts for overlap. It is reported alongside the primary, never instead of it.
+5. *Power, stated now:* v1's 90 dates gave a detection floor of about |0.066|. The primary series adds about 12 dates a year, so the ledger can't confirm or rule out an edge of v1's size for years. Its first job is the memorisation control: whether the post-training-cutoff correlation differs from v1's in-sample −0.015.
+
+```powershell
+python -m scripts.live_predict              # today's round (after the close)
+python -m scripts.live_predict --status
+python -m scripts.live_predict --verify     # recompute the hash chain
+powershell -ExecutionPolicy Bypass -File scripts\register_ledger_task.ps1   # weekdays 18:30 + 21:30
+```
+
 ## The leaks this guards against
 
 **1. `info` and `fast_info` are always *now*.** AAPL's 52-week high read today is $344.57; reconstructed as of 2025-11-03 it was **$271.40**. A model given the former is told the stock sits 21% below its high when it was sitting near it — an inverted signal, delivered as fact. Everything comes from `history()` instead.
@@ -208,7 +235,7 @@ Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; t
 `tests/test_frozen_v1.py` guards the result itself: the 90 cutoffs are committed, and the report recomputed from the local cache must equal `results-final.json` exactly. It exists because the benchmark once wasn't frozen — the window list ended at *today*, so a new window appeared every 21 trading days and the report stopped reproducing. The end is now pinned (`BENCHMARK_END`, 2026-09-01).
 
 ```powershell
-pytest -m "not network"   # 232 offline
+pytest -m "not network"   # 258 offline
 pytest                    # + live leak tests
 ```
 
@@ -296,5 +323,5 @@ evals/      grid, outcomes, baselines, scoring, number_check, attribution, repor
 llm/        prompts (versioned), brief parser, provider-agnostic client
 scripts/    build_grid, fetch_disclosures, run_baselines, run_briefs, report
 app/        cli, server + static dashboard, streamlit dashboard
-tests/      232 offline, plus live leak tests
+tests/      258 offline, plus live leak tests
 ```
