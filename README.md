@@ -98,7 +98,7 @@ That separation is only visible because L1, L2 and L3 were measured independentl
 | 6 | Memorisation control, prose-vs-structured ablation | not started |
 | — | **Full 3,690-brief run** | **done** — frozen as tag `v1.0` |
 | 2.0 / M1 | Live filing watcher (NSE RSS → SQLite → dashboard) | done |
-| 2.0 / M2 | Rule-based filing categories, scored on a held-out sample | v1: 72% agreement with AI-tool labels; v2 frozen 16:00 IST, sample pending |
+| 2.0 / M2 | Rule-based filing categories, scored on a held-out sample | v1: 72% agreement with AI-tool labels; v2 (held-out): 88% (44/50) |
 | 2.0 / M3 | Forward ledger: 41 stocks daily, hash-chained, witnessed in git | built; first round 2026-10-29 |
 
 ## Live: forward-only record (2.0)
@@ -178,6 +178,18 @@ So by the guide's own definitions, about 10 of the 50 are rule errors, and most 
 - maps 10 NSE tags that first appeared after the v1 freeze
 
 It is not re-scored on the v1 sample. Its own sample comes from filings first seen after 16:00 IST, and its files live in `labels/rules-v2/`.
+
+**Result (rules-v2, held-out sample of 2026-10-29 evening).** The sample was drawn and committed (`c863284`) before labelling, and the labels were committed (`fe2326d`) before scoring. The labeller was again an **AI tool**, so this too is agreement, not accuracy:
+
+| stratum | agree | 95% CI |
+|---|---|---|
+| random | 28/30 (93%) | 79–98% |
+| hard | 16/20 (80%) | 58–92% |
+| all | 44/50 (88%) | 76–94% |
+
+Of the 6 disagreements, 4 are rows where the tool could not open the PDF and declined to infer anything from its filename (it said `other`), while the rules used the filename. The other 2 are judgement calls: an alteration of the company's main objects (tool: `business_update`, rules: routine compliance) and a debenture trustee's NOC (tool: `other`, rules: routine compliance).
+
+This number is final for rules-v2; the rules will not be tuned on it. It is a better result than v1's 72%, but the two samples were drawn from different hours' filings and their intervals overlap, so the size of the improvement is not pinned down.
 
 ```powershell
 python -m scripts.label_filings stats     # category mix

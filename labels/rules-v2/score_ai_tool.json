@@ -1,0 +1,114 @@
+{
+  "labeller": "ai_tool",
+  "sheet": "labels_ai_tool.csv",
+  "classifier_version": "rules-v2",
+  "rules_fingerprint": "0c7b782c94f4",
+  "held_out": true,
+  "labelled": 50,
+  "of": 50,
+  "strata": {
+    "random": {
+      "n": 30,
+      "correct": 28,
+      "accuracy": 0.9333,
+      "ci95": [
+        0.7868,
+        0.9815
+      ]
+    },
+    "hard": {
+      "n": 20,
+      "correct": 16,
+      "accuracy": 0.8,
+      "ci95": [
+        0.584,
+        0.9193
+      ]
+    },
+    "all": {
+      "n": 50,
+      "correct": 44,
+      "accuracy": 0.88,
+      "ci95": [
+        0.7619,
+        0.9438
+      ]
+    }
+  },
+  "confusion": [
+    {
+      "gold": "other",
+      "predicted": "board_meeting",
+      "count": 1
+    },
+    {
+      "gold": "board_meeting",
+      "predicted": "results",
+      "count": 1
+    },
+    {
+      "gold": "other",
+      "predicted": "business_update",
+      "count": 1
+    },
+    {
+      "gold": "other",
+      "predicted": "management_change",
+      "count": 1
+    },
+    {
+      "gold": "business_update",
+      "predicted": "routine_compliance",
+      "count": 1
+    },
+    {
+      "gold": "other",
+      "predicted": "routine_compliance",
+      "count": 1
+    }
+  ],
+  "disagreements": [
+    {
+      "n": 7,
+      "provider_ref": "3718899ae867d545f127f48233f93c2ca4fa9021b7f3980165a20aea22a27c73",
+      "gold": "other",
+      "predicted": "board_meeting",
+      "rule": "url.bm"
+    },
+    {
+      "n": 8,
+      "provider_ref": "a2e34419da73fc9c0a654ffbc612b0d069f19fb450e1a018b2b9348d256ad8b1",
+      "gold": "board_meeting",
+      "predicted": "results",
+      "rule": "url.results"
+    },
+    {
+      "n": 13,
+      "provider_ref": "9b26961466f7cfa6361f53b915c5ff70ae2c9ee0e4495444a7b4b4963c1dc2da",
+      "gold": "other",
+      "predicted": "business_update",
+      "rule": "fallback.updates"
+    },
+    {
+      "n": 20,
+      "provider_ref": "e964278a05269a65f862a34b7d4d8d39d4b05c91cc7f08e89528629f3e64180d",
+      "gold": "other",
+      "predicted": "management_change",
+      "rule": "text.management"
+    },
+    {
+      "n": 23,
+      "provider_ref": "a95a073595213ef8c5385666606b019b5e470f3cad0991518bbceb1c92a63de5",
+      "gold": "business_update",
+      "predicted": "routine_compliance",
+      "rule": "text.compliance"
+    },
+    {
+      "n": 36,
+      "provider_ref": "04d15c429ac749faa91b83764a168f42e006a072aa1d6da6f1ce51b73defaf1d",
+      "gold": "other",
+      "predicted": "routine_compliance",
+      "rule": "tag.compliance"
+    }
+  ]
+}
