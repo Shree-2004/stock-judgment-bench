@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Judgment Ledger</title>
+<meta name="description" content="A public, hash-chained ledger of an LLM's daily calls on 41 NSE stocks, scored against what happened. Research record, not advice.">
+<!--
+  Static page over site/data/*.json, written by `python -m scripts.export_site`.
+  It reads nothing else and writes nothing. Serve with:
+      python -m http.server 8700 -d site
+-->
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#13171c; --panel-2:#181d23; --line:#242b33;
+    --ink:#e8edf3; --muted:#8b97a6; --dim:#5d6875;
+    --pos:#3fb950; --neg:#f85149; --warn:#d29922; --accent:#58a6ff; --neutral:#8b97a6;
+    --pos-bg:#0f1d13; --neg-bg:#241113; --neu-bg:#1a1f26;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);overflow:hidden;
+       font:13.5px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  .num{font-variant-numeric:tabular-nums}
+  .pos{color:var(--pos)} .neg{color:var(--neg)} .mut{color:var(--muted)}
+
+  .app{display:grid;height:100vh;grid-template-rows:auto auto 1fr;grid-template-columns:minmax(0,1fr)}
+
+  /* top bar */
+  .top{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:650;letter-spacing:-.01em;font-size:15px}
+  .brand svg{flex:none}
+  .brand small{font-weight:400;color:var(--muted);font-size:12px}
+  .search{flex:0 1 260px;margin-left:8px;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
+          border-radius:8px;padding:7px 11px;font:inherit;outline:none}
+  .search:focus{border-color:var(--accent)}
+  .chips{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+  .chip{font-size:12px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
+        padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .chip b{color:var(--ink);font-weight:600}
+  .chip.ok{color:#6fd888;border-color:#1c3b25;background:var(--pos-bg)}
+  .chip.bad{color:#ff8a83;border-color:#4a1d1f;background:var(--neg-bg)}
+  .chip.warn{color:#e5c46b;border-color:#3d3418;background:#1d1a0e}
+
+  /* ticker strip */
+  .strip{border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;background:var(--panel)}
+  .strip .track{display:inline-flex;gap:26px;padding:7px 0;animation:scroll 90s linear infinite}
+  .strip:hover .track{animation-play-state:paused}
+  .strip span{font-size:12px;color:var(--muted);cursor:pointer}
+  .strip span b{color:var(--ink);font-weight:600;margin-right:6px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){.strip .track{animation:none}}
+
+  /* three columns */
+  .main{display:grid;grid-template-columns:270px minmax(0,1fr) 320px;min-height:0}
+  .col{min-height:0;overflow:auto}
+  .left{border-right:1px solid var(--line)}
+  .right{border-left:1px solid var(--line);padding:16px}
+
+  .wl-head{position:sticky;top:0;background:var(--bg);display:flex;justify-content:space-between;
+           padding:10px 14px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;
+           border-bottom:1px solid var(--line);z-index:1}
+  .row{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 14px;border-bottom:1px solid #171c22;
+       cursor:pointer;border-left:2px solid transparent}
+  .row:hover{background:var(--panel)}
+  .row.sel{background:var(--panel-2);border-left-color:var(--accent)}
+  .row .sym{font-weight:600;display:flex;align-items:center;gap:7px}
+  .row .nm{font-size:11.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+  .row .px{text-align:right;font-weight:600}
+  .row .ch{text-align:right;font-size:11.5px}
+
+  .pill{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:650;letter-spacing:.03em;
+        padding:1px 7px;border-radius:999px;border:1px solid}
+  .pill.BULLISH{color:var(--pos);background:var(--pos-bg);border-color:#1c3b25}
+  .pill.BEARISH{color:var(--neg);background:var(--neg-bg);border-color:#4a1d1f}
+  .pill.NEUTRAL{color:var(--neutral);background:var(--neu-bg);border-color:var(--line)}
+  .pill.none{color:var(--dim);background:transparent;border-color:var(--line)}
+
+  /* centre */
+  .center{padding:16px 20px;display:flex;flex-direction:column;min-height:0}
+  .quote{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+  .quote h2{margin:0;font-size:22px;letter-spacing:-.02em}
+  .quote .ex{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-left:8px;vertical-align:middle}
+  .quote .name{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .quote .big{font-size:30px;font-weight:650;letter-spacing:-.02em}
+  .quote .chg{font-size:14px;margin-left:8px}
+  .quote .asof{font-size:11.5px;color:var(--dim)}
+  .toolbar{display:flex;align-items:center;gap:6px;margin:14px 0 8px;flex-wrap:wrap}
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:2px}
+  .seg button{background:none;border:0;color:var(--muted);font:inherit;font-size:12px;padding:4px 11px;border-radius:6px;cursor:pointer}
+  .seg button.on{background:var(--panel-2);color:var(--ink)}
+  .legend{margin-left:auto;display:flex;gap:14px;font-size:11.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  #chart{flex:1;min-height:340px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+  .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+
+  /* right */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px}
+  .card h3{margin:0 0 10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+  .verdict{font-size:24px;font-weight:700;letter-spacing:-.01em}
+  .verdict.BULLISH{color:var(--pos)} .verdict.BEARISH{color:var(--neg)} .verdict.NEUTRAL{color:var(--neutral)}
+  .dots{display:flex;gap:4px;margin:8px 0 10px}
+  .dots i{width:22px;height:5px;border-radius:9px;background:var(--panel-2)}
+  .dots i.on{background:var(--accent)}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:12.5px}
+  .kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right}
+  .split{display:flex;height:8px;border-radius:9px;overflow:hidden;margin:4px 0 10px;background:var(--panel-2)}
+  .split div{height:100%}
+  .split-k{display:flex;justify-content:space-between;font-size:12px}
+  .check{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;padding:5px 0}
+  .check .ic{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;margin-top:1px}
+  .check .ic.ok{background:var(--pos-bg);color:var(--pos)} .check .ic.no{background:var(--neg-bg);color:var(--neg)}
+  .check .ic.wait{background:#1d1a0e;color:var(--warn)}
+  .check small{display:block;color:var(--dim);font-family:var(--mono);font-size:11px}
+  .banner{font-size:12px;color:#9cc7ff;background:#0f1a2a;border:1px solid #1b3352;border-radius:8px;padding:8px 10px;margin-top:10px}
+  .fine{font-size:11.5px;color:var(--dim);line-height:1.5}
+  .err{padding:40px;color:var(--muted)} .err code{color:var(--ink)}
+
+  @media (max-width:1100px){
+    body{overflow:auto}
+    .app{height:auto}
+    .main{grid-template-columns:minmax(0,1fr)}
+    .chips{margin-left:0}
+    .left{border-right:0;border-bottom:1px solid var(--line);max-height:300px}
+    .right{border-left:0;border-top:1px solid var(--line)}
+    #chart{min-height:380px}
+  }
+  @media (max-width:560px){
+    .top,.center{padding-left:16px;padding-right:16px}
+    .search{flex:1 1 100%;margin-left:0}
+    .legend{margin-left:0}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="5" stroke="#58a6ff" stroke-width="1.8"/>
+        <path d="M7 15l3-4 3 2 4-6" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Judgment Ledger <small>stock-judgment-bench · live</small>
+    </div>
+    <input id="q" class="search" placeholder="Search 41 stocks…" autocomplete="off" aria-label="Search stocks">
+    <div class="chips" id="chips"></div>
+  </header>
+  <div class="strip" aria-hidden="true"><div class="track" id="strip"></div></div>
+  <main class="main">
+    <aside class="col left">
+      <div class="wl-head"><span>Stock · today's call</span><span>Close</span></div>
+      <div id="list"></div>
+    </aside>
+    <section class="col center">
+      <div class="quote" id="quote"></div>
+      <div class="toolbar">
+        <div class="seg" id="range">
+          <button data-d="21">1M</button><button data-d="63" class="on">3M</button>
+          <button data-d="126">6M</button><button data-d="0">1Y</button>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--pos)"></i>Bullish call</span>
+          <span><i style="background:var(--neutral)"></i>Neutral</span>
+          <span><i style="background:var(--neg)"></i>Bearish</span>
+        </div>
+      </div>
+      <div id="chart"></div>
+      <div class="note">Daily NSE candles, unadjusted, the same close each call read. Markers sit on the session a call was made, after that day's close. Today's bar appears after the close.</div>
+    </section>
+    <aside class="col right" id="side"></aside>
+  </main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const fmt = (n, d = 2) => n == null ? "—" : n.toLocaleString("en-IN", {minimumFractionDigits: d, maximumFractionDigits: d});
+const pct = n => n == null ? "—" : (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
+const dlong = s => new Date(s + "T00:00:00").toLocaleDateString("en-GB", {weekday: "short", day: "numeric", month: "short", year: "numeric"});
+const tIST = s => new Date(s).toLocaleString("en-GB", {timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"}) + " IST";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const COLORS = {BULLISH: "#3fb950", BEARISH: "#f85149", NEUTRAL: "#8b97a6"};
+
+let L, P, symbols, session, selected, chart, candles, volume, rangeDays = 63;
+
+function quoteOf(sym) {
+  const bars = P[sym] || [];
+  const last = bars.at(-1), prev = bars.at(-2);
+  return {last, chg: last && prev ? (last.close / prev.close - 1) * 100 : null};
+}
+
+function chips() {
+  const c = L.chain, out = [`<span class="chip">Session <b>${dlong(session)}</b></span>`];
+  out.push(c.ok ? `<span class="chip ok">Chain verified · ${c.rows} rows</span>`
+                : `<span class="chip bad">Chain BROKEN at seq ${esc(c.bad_seq)}</span>`);
+  out.push(c.pushed === true ? `<span class="chip ok">On GitHub</span>`
+         : c.pushed === false ? `<span class="chip warn">Not pushed yet</span>`
+         : `<span class="chip">GitHub copy unknown</span>`);
+  out.push(`<span class="chip">Research record · not advice</span>`);
+  $("#chips").innerHTML = out.join("");
+}
+
+function strip() {
+  const items = symbols.map(s => {
+    const {last, chg} = quoteOf(s);
+    return `<span data-s="${s}"><b>${s}</b>${fmt(last?.close)} <em class="${chg >= 0 ? "pos" : "neg"}" style="font-style:normal">${pct(chg)}</em></span>`;
+  }).join("");
+  $("#strip").innerHTML = items + items;          // doubled for a seamless loop
+  $("#strip").onclick = e => { const s = e.target.closest("[data-s]"); if (s) select(s.dataset.s); };
+}
+
+function list() {
+  const q = $("#q").value.trim().toLowerCase();
+  const calls = L.sessions[session] || {};
+  $("#list").innerHTML = symbols
+    .filter(s => !q || s.toLowerCase().includes(q) || (L.names[s] || "").toLowerCase().includes(q))
+    .map(s => {
+      const {last, chg} = quoteOf(s), v = calls[s]?.verdict;
+      return `<div class="row${s === selected ? " sel" : ""}" data-s="${s}" role="button" tabindex="0">
+        <div class="sym">${s} <span class="pill ${v || "none"}">${v ? v[0] + v.slice(1).toLowerCase() : "no call"}</span></div>
+        <div class="px num">${fmt(last?.close)}</div>
+        <div class="nm" title="${esc(L.names[s])}">${esc(L.names[s])}</div>
+        <div class="ch num ${chg >= 0 ? "pos" : "neg"}">${pct(chg)}</div>
+      </div>`;
+    }).join("") || `<div class="err">No match.</div>`;
+}
+
+function quote() {
+  const {last, chg} = quoteOf(selected);
+  $("#quote").innerHTML = `
+    <div><h2>${selected}<span class="ex">NSE</span></h2><div class="name">${esc(L.names[selected])}</div></div>
+    <div><span class="big num">₹${fmt(last?.close)}</span><span class="chg num ${chg >= 0 ? "pos" : "neg"}">${pct(chg)}</span>
+      <div class="asof">close of ${last ? dlong(last.time) : "—"}</div></div>`;
+}
+
+function markers() {
+  return Object.keys(L.sessions).sort().flatMap(d => {
+    const c = L.sessions[d][selected];
+    if (!c || !c.verdict) return [];
+    const up = c.verdict === "BULLISH", down = c.verdict === "BEARISH";
+    return [{time: d, position: down ? "aboveBar" : "belowBar", color: COLORS[c.verdict],
+             shape: up ? "arrowUp" : down ? "arrowDown" : "circle", text: `${c.verdict[0]}${c.confidence ?? ""}`}];
+  });
+}
+
+function drawChart() {
+  const el = $("#chart");
+  if (!chart) {
+    chart = LightweightCharts.createChart(el, {
+      autoSize: true,
+      layout: {background: {type: "solid", color: "#13171c"}, textColor: "#8b97a6", fontSize: 11},
+      grid: {vertLines: {color: "#1b2027"}, horzLines: {color: "#1b2027"}},
+      rightPriceScale: {borderColor: "#242b33"},
+      timeScale: {borderColor: "#242b33"},
+      crosshair: {mode: LightweightCharts.CrosshairMode.Normal},
+    });
+    candles = chart.addCandlestickSeries({upColor: "#3fb950", downColor: "#f85149", borderVisible: false,
+                                          wickUpColor: "#3fb950", wickDownColor: "#f85149",
+                                          priceFormat: {type: "custom", formatter: p => "₹" + fmt(p), minMove: 0.05}});
+    volume = chart.addHistogramSeries({priceFormat: {type: "volume"}, priceScaleId: "",
+                                       lastValueVisible: false, priceLineVisible: false});
+    volume.priceScale().applyOptions({scaleMargins: {top: 0.82, bottom: 0}});
+  }
+  const bars = P[selected] || [];
+  candles.setData(bars.map(({time, open, high, low, close}) => ({time, open, high, low, close})));
+  volume.setData(bars.map(b => ({time: b.time, value: b.volume,
+                                 color: b.close >= b.open ? "rgba(63,185,80,.28)" : "rgba(248,81,73,.28)"})));
+  candles.setMarkers(markers());
+  setRange();
+}
+
+function setRange() {
+  const bars = P[selected] || [];
+  if (!bars.length) return;
+  const from = rangeDays ? bars[Math.max(0, bars.length - rangeDays)].time : bars[0].time;
+  chart.timeScale().setVisibleRange({from, to: bars.at(-1).time});
+}
+
+function side() {
+  const c = (L.sessions[session] || {})[selected];
+  const calls = Object.values(L.sessions[session] || {});
+  const n = k => calls.filter(x => x.verdict === k).length, tot = calls.length || 1;
+  const ch = L.chain;
+  const callCard = !c ? `<div class="mut">No call recorded for ${selected} on this session.</div>` : `
+    <div class="verdict ${c.verdict || ""}">${c.verdict || "No call"}</div>
+    ${c.confidence ? `<div class="dots" aria-label="confidence ${c.confidence} of 5">${[1,2,3,4,5].map(i => `<i class="${i <= c.confidence ? "on" : ""}"></i>`).join("")}</div>` : ""}
+    <dl class="kv">
+      <dt>Confidence</dt><dd class="num">${c.confidence ?? "—"} / 5</dd>
+      <dt>Close it read</dt><dd class="num">₹${fmt(c.price)}</dd>
+      <dt>Filings shown</dt><dd class="num">${c.evidence.length}</dd>
+      <dt>Made at</dt><dd>${tIST(c.made_at)}</dd>
+      ${c.attempt > 1 ? `<dt>Attempt</dt><dd>${c.attempt}</dd>` : ""}
+    </dl>
+    ${c.error ? `<div class="banner" style="color:#ff8a83;background:var(--neg-bg);border-color:#4a1d1f">${esc(c.error)}</div>` : ""}
+    ${c.warmup ? `<div class="banner">Warm-up session. Recorded and hash-chained, but excluded from the pre-registered analysis (warm-up ends ${dlong(L.warmup_end)}).</div>` : ""}`;
+
+  $("#side").innerHTML = `
+    <div class="card"><h3>Model's call · ${dlong(session)}</h3>${callCard}</div>
+    <div class="card"><h3>All 41 calls this session</h3>
+      <div class="split">
+        <div style="width:${n("BULLISH")/tot*100}%;background:var(--pos)"></div>
+        <div style="width:${n("NEUTRAL")/tot*100}%;background:var(--neutral)"></div>
+        <div style="width:${n("BEARISH")/tot*100}%;background:var(--neg)"></div>
+      </div>
+      <div class="split-k num"><span class="pos">${n("BULLISH")} bullish</span><span class="mut">${n("NEUTRAL")} neutral</span><span class="neg">${n("BEARISH")} bearish</span></div>
+    </div>
+    <div class="card"><h3>Is this record intact?</h3>
+      <div class="check"><span class="ic ${ch.ok ? "ok" : "no"}">${ch.ok ? "✓" : "✕"}</span>
+        <div>${ch.ok ? `All ${ch.rows} rows recompute` : `Chain breaks at seq ${esc(ch.bad_seq)}`}<small>sha256 chain from genesis</small></div></div>
+      <div class="check"><span class="ic ${ch.witnessed ? "ok" : "wait"}">${ch.witnessed ? "✓" : "…"}</span>
+        <div>${ch.witnessed ? "Head written to chain.txt" : "Head not yet in chain.txt"}<small>${esc((ch.head || "").slice(0, 16))}…</small></div></div>
+      <div class="check"><span class="ic ${ch.pushed ? "ok" : "wait"}">${ch.pushed ? "✓" : "…"}</span>
+        <div>${ch.pushed ? "Head is in the public GitHub history" : "Head not pushed yet"}<small>origin/master, last fetch</small></div></div>
+    </div>
+    <div class="card"><h3>About</h3>
+      <p class="fine" style="margin:0 0 8px">Each weekday after the NSE close, one model makes one call per stock from a frozen prompt and the filings this system had seen by then. Calls are appended to a hash-chained ledger and later scored against the next 21 sessions.</p>
+      <dl class="kv"><dt>Model</dt><dd>${esc(L.model)}</dd><dt>Prompt</dt><dd>${esc(L.prompt_version)}</dd>
+        <dt>Exported</dt><dd>${tIST(L.generated_at)}</dd></dl>
+      <p class="fine" style="margin:10px 0 0">Not investment advice. No call here is a recommendation to buy or sell.</p>
+    </div>`;
+}
+
+function select(sym) {
+  selected = sym;
+  try { history.replaceState(null, "", "#" + sym); } catch {}
+  list(); quote(); drawChart(); side();
+  document.querySelector(".row.sel")?.scrollIntoView({block: "nearest"});
+}
+
+async function boot() {
+  try {
+    [L, P] = await Promise.all(["data/ledger.json", "data/prices.json"].map(u => fetch(u).then(r => {
+      if (!r.ok) throw new Error(u + " " + r.status); return r.json(); })));
+  } catch (e) {
+    document.querySelector(".main").innerHTML = `<div class="err">No data yet (${esc(e.message)}). Run <code>python -m scripts.export_site</code>, then serve with <code>python -m http.server 8700 -d site</code>.</div>`;
+    return;
+  }
+  symbols = Object.keys(L.names).sort();
+  session = Object.keys(L.sessions).sort().at(-1);
+  chips(); strip();
+  $("#q").oninput = list;
+  $("#list").onclick = e => { const r = e.target.closest(".row"); if (r) select(r.dataset.s); };
+  $("#list").onkeydown = e => { if (e.key === "Enter") { const r = e.target.closest(".row"); if (r) select(r.dataset.s); } };
+  document.addEventListener("keydown", e => {
+    if (e.target === $("#q") || !["ArrowDown", "ArrowUp"].includes(e.key)) return;
+    const rows = [...document.querySelectorAll(".row")], i = rows.findIndex(r => r.dataset.s === selected);
+    const next = rows[i + (e.key === "ArrowDown" ? 1 : -1)];
+    if (next) { e.preventDefault(); select(next.dataset.s); }
+  });
+  $("#range").onclick = e => {
+    const b = e.target.closest("button"); if (!b) return;
+    document.querySelectorAll("#range button").forEach(x => x.classList.toggle("on", x === b));
+    rangeDays = +b.dataset.d; setRange();
+  };
+  const want = decodeURIComponent(location.hash.slice(1));
+  select(symbols.includes(want) ? want : "RELIANCE");
+}
+boot();
+</script>
+</body>
+</html>

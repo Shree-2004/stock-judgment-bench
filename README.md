@@ -223,6 +223,8 @@ python -m scripts.live_predict              # today's round (after the close)
 python -m scripts.live_predict --status
 python -m scripts.live_predict --verify     # recompute the hash chain
 streamlit run app/live_dashboard.py         # "Predictions" page: each day's calls, their evidence, chain + GitHub check
+python -m scripts.export_site               # static JSON for site/ (ledger + daily candles)
+python -m http.server 8700 -d site          # terminal-style ledger view at http://localhost:8700
 powershell -ExecutionPolicy Bypass -File scripts\register_ledger_task.ps1   # weekdays 18:30 + 21:30
 ```
 
@@ -250,7 +252,7 @@ Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; t
 `tests/test_frozen_v1.py` guards the result itself: the 90 cutoffs are committed, and the report recomputed from the local cache must equal `results-final.json` exactly. It exists because the benchmark once wasn't frozen — the window list ended at *today*, so a new window appeared every 21 trading days and the report stopped reproducing. The end is now pinned (`BENCHMARK_END`, 2026-09-01).
 
 ```powershell
-pytest -m "not network"   # 258 offline
+pytest -m "not network"   # 260 offline
 pytest                    # + live leak tests
 ```
 
@@ -338,5 +340,5 @@ evals/      grid, outcomes, baselines, scoring, number_check, attribution, repor
 llm/        prompts (versioned), brief parser, provider-agnostic client
 scripts/    build_grid, fetch_disclosures, run_baselines, run_briefs, report
 app/        cli, server + static dashboard, streamlit dashboard
-tests/      258 offline, plus live leak tests
+tests/      260 offline, plus live leak tests
 ```
