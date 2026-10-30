@@ -39,51 +39,52 @@ PROVIDER_NSE_RSS = "nse_rss"
 _DATE_FORMATS = ("%d-%b-%Y %H:%M:%S", "%d-%b-%Y %H:%M")
 
 # NSE's printed company names for the 41-stock universe (data/universe.py).
-# Registered names; the ones marked SEEN appeared verbatim in the feed by
-# 2026-10-29. The rest are checked by `scripts.live_ingest --unmatched` as they
-# file — a wrong name fails safe (that stock simply shows no filings) and the
-# ledger records how many filings each prediction saw, so it is visible.
+# All 41 checked on 2026-10-30 against NSE's official list (EQUITY_L.csv, the
+# "NAME OF COMPANY" column): every one maps back to its symbol, ONGC through
+# its alias below. 28 had also appeared verbatim in the feed by then. A wrong
+# name fails safe (that stock simply shows no filings) and the ledger records
+# how many filings each prediction saw, so it would be visible.
 NSE_NAMES: dict[str, str] = {
-    "RELIANCE":   "Reliance Industries Limited",              # SEEN
+    "RELIANCE":   "Reliance Industries Limited",
     "TCS":        "Tata Consultancy Services Limited",
     "HDFCBANK":   "HDFC Bank Limited",
-    "INFY":       "Infosys Limited",                          # SEEN
+    "INFY":       "Infosys Limited",
     "ICICIBANK":  "ICICI Bank Limited",
-    "HINDUNILVR": "Hindustan Unilever Limited",               # SEEN
+    "HINDUNILVR": "Hindustan Unilever Limited",
     "ITC":        "ITC Limited",
     "SBIN":       "State Bank of India",
-    "BHARTIARTL": "Bharti Airtel Limited",                    # SEEN
+    "BHARTIARTL": "Bharti Airtel Limited",
     "KOTAKBANK":  "Kotak Mahindra Bank Limited",
-    "LT":         "Larsen & Toubro Limited",                  # SEEN
+    "LT":         "Larsen & Toubro Limited",
     "AXISBANK":   "Axis Bank Limited",
-    "ASIANPAINT": "Asian Paints Limited",                     # SEEN
-    "MARUTI":     "Maruti Suzuki India Limited",              # SEEN
+    "ASIANPAINT": "Asian Paints Limited",
+    "MARUTI":     "Maruti Suzuki India Limited",
     "BAJFINANCE": "Bajaj Finance Limited",
-    "TITAN":      "Titan Company Limited",                    # SEEN
+    "TITAN":      "Titan Company Limited",
     "SUNPHARMA":  "Sun Pharmaceutical Industries Limited",
     "ULTRACEMCO": "UltraTech Cement Limited",
     "WIPRO":      "Wipro Limited",
     "NESTLEIND":  "Nestle India Limited",
     "TATASTEEL":  "Tata Steel Limited",
-    "POWERGRID":  "Power Grid Corporation of India Limited",  # SEEN
-    "NTPC":       "NTPC Limited",                             # SEEN
+    "POWERGRID":  "Power Grid Corporation of India Limited",
+    "NTPC":       "NTPC Limited",
     "ONGC":       "Oil and Natural Gas Corporation Limited",
     "M&M":        "Mahindra & Mahindra Limited",
     "HCLTECH":    "HCL Technologies Limited",
-    "JSWSTEEL":   "JSW Steel Limited",                        # SEEN
+    "JSWSTEEL":   "JSW Steel Limited",
     "INDUSINDBK": "IndusInd Bank Limited",
     "GRASIM":     "Grasim Industries Limited",
     "BAJAJFINSV": "Bajaj Finserv Limited",
-    "DRREDDY":    "Dr. Reddy's Laboratories Limited",         # SEEN
-    "CIPLA":      "Cipla Limited",                            # SEEN
+    "DRREDDY":    "Dr. Reddy's Laboratories Limited",
+    "CIPLA":      "Cipla Limited",
     "BRITANNIA":  "Britannia Industries Limited",
     "EICHERMOT":  "Eicher Motors Limited",
     "COALINDIA":  "Coal India Limited",
-    "HEROMOTOCO": "Hero MotoCorp Limited",                    # SEEN
+    "HEROMOTOCO": "Hero MotoCorp Limited",
     "BPCL":       "Bharat Petroleum Corporation Limited",
     "TECHM":      "Tech Mahindra Limited",
     "ADANIPORTS": "Adani Ports and Special Economic Zone Limited",
-    "HINDALCO":   "Hindalco Industries Limited",              # SEEN
+    "HINDALCO":   "Hindalco Industries Limited",
     "UPL":        "UPL Limited",
 }
 # Spellings NSE is known to use besides the registered one.

@@ -19,7 +19,7 @@ from pathlib import Path
 import pytest
 
 from live import store
-from live.filings import parse_nse_rss, parse_pubdate, tracked_symbol
+from live.filings import NSE_NAMES, parse_nse_rss, parse_pubdate, tracked_symbol
 from live.ingest import PermanentFetchError, TransientFetchError, fetch_feed, run_once
 
 FIX = Path(__file__).parent / "fixtures"
@@ -80,6 +80,14 @@ def test_tracked_symbol_is_exact_after_normalisation():
     assert tracked_symbol("INFOSYS LTD.") == "INFY"
     assert tracked_symbol("HDFC Bank Limited - NCD") is None
     assert tracked_symbol("Reliance Industrial Infrastructure Limited") is None
+
+
+def test_every_universe_name_maps_back_including_nse_official_spellings():
+    # Official names from NSE's EQUITY_L.csv (2026-10-30) equal NSE_NAMES for
+    # 40 of 41; ONGC is the one NSE prints with "&".
+    assert all(tracked_symbol(name) == sym for sym, name in NSE_NAMES.items())
+    assert tracked_symbol("Oil & Natural Gas Corporation Limited") == "ONGC"
+    assert len(set(NSE_NAMES)) == 41
 
 
 # ---------------------------------------------------------------------------
