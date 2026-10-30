@@ -102,6 +102,7 @@ That separation is only visible because L1, L2 and L3 were measured independentl
 | 2.0 / M1 | Live filing watcher (NSE RSS → SQLite → dashboard) | done |
 | 2.0 / M2 | Rule-based filing categories, scored on a held-out sample | v1: 72% agreement with AI-tool labels; v2 (held-out): 88% (44/50) |
 | 2.0 / M3 | Forward ledger: 41 stocks daily, hash-chained, witnessed in git | built; first round 2026-10-29 |
+| 2.0 / M4 | Settlement + the pre-registered analysis | built and tested (v1 replay reproduces −0.0153 / t −0.65); first calls settle ~2026-11-27 |
 
 ## Live: forward-only record (2.0)
 
@@ -223,7 +224,12 @@ python -m scripts.label_filings score     # after filling labels/<rules-version>
 
    A replacement model starts a **new** track with its own warm-up and its own analysis. Results are reported per track, and tracks are never pooled into one number. `--status` lists the builds seen per session so a change is visible the evening it happens.
 
+**M4 — settlement** (`live/settle.py`, built before any call was due). Each evening after the round, every call whose 21-session window has closed is settled once into an append-only `outcomes` table. Settlement uses v1's `get_outcome` and `score_l3` unchanged. A test replays v1's cached briefs through M4's summariser and gets v1's published −0.0153 / t −0.65. Two details the plan didn't spell out were fixed before any outcome existed:
+- a scheduled primary session the ledger doesn't have (the machine was off) is reported as **missing**, never replaced by a neighbouring session
+- the secondary series' standard error is Newey-West at lag 20, matching the overlap of consecutive 21-day windows
+
 ```powershell
+python -m scripts.settle                    # settle what's due, print the analysis (also runs nightly)
 python -m scripts.live_predict              # today's round (after the close)
 python -m scripts.live_predict --status
 python -m scripts.live_predict --verify     # recompute the hash chain
@@ -257,7 +263,7 @@ Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; t
 `tests/test_frozen_v1.py` guards the result itself: the 90 cutoffs are committed, and the report recomputed from the local cache must equal `results-final.json` exactly. It exists because the benchmark once wasn't frozen — the window list ended at *today*, so a new window appeared every 21 trading days and the report stopped reproducing. The end is now pinned (`BENCHMARK_END`, 2026-09-01).
 
 ```powershell
-pytest -m "not network"   # 264 offline
+pytest -m "not network"   # 272 offline
 pytest                    # + live leak tests
 ```
 
@@ -345,5 +351,5 @@ evals/      grid, outcomes, baselines, scoring, number_check, attribution, repor
 llm/        prompts (versioned), brief parser, provider-agnostic client
 scripts/    build_grid, fetch_disclosures, run_baselines, run_briefs, report
 app/        cli, server + static dashboard, streamlit dashboard
-tests/      264 offline, plus live leak tests
+tests/      272 offline, plus live leak tests
 ```

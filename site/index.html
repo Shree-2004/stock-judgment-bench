@@ -226,7 +226,14 @@ const nice = v => v ? v[0] + v.slice(1).toLowerCase() : "no call";
 const elapsed = (sym, d) => Math.min(HORIZON, (P[sym] || []).filter(b => b.time > d).length);
 const progress = (sym, d) => {
   const n = elapsed(sym, d);
-  return `<span class="prog"><span class="bar"><b style="width:${n / HORIZON * 100}%"></b></span>${n} / ${HORIZON}${n >= HORIZON ? " · ready to score" : ""}</span>`;
+  return `<span class="prog"><span class="bar"><b style="width:${n / HORIZON * 100}%"></b></span>${n} / ${HORIZON}${n >= HORIZON ? " · settling" : ""}</span>`;
+};
+// Once settled (M4), the countdown becomes the result.
+const scoring = (c, sym, d) => {
+  const o = c?.outcome;
+  if (!o) return progress(sym, d);
+  const tick = o.right === true ? ` <b class="pos">✓ right</b>` : o.right === false ? ` <b class="neg">✕ wrong</b>` : ` <span class="mut">· neutral</span>`;
+  return `<span class="num ${o.excess_return >= 0 ? "pos" : "neg"}">${pct(o.excess_return)}</span> <span class="mut">vs Nifty</span>${tick}`;
 };
 
 let L, P, symbols, session, selected, chart, candles, volume, rangeDays = 63;
@@ -289,7 +296,8 @@ function markers() {
     if (!c || !c.verdict) return [];
     const up = c.verdict === "BULLISH", down = c.verdict === "BEARISH";
     return [{time: d, position: down ? "aboveBar" : "belowBar", color: COLORS[c.verdict],
-             shape: up ? "arrowUp" : down ? "arrowDown" : "circle", text: `${c.verdict[0]}${c.confidence ?? ""}`}];
+             shape: up ? "arrowUp" : down ? "arrowDown" : "circle",
+             text: `${c.verdict[0]}${c.confidence ?? ""}${c.outcome?.right === true ? " ✓" : c.outcome?.right === false ? " ✕" : ""}`}];
   });
 }
 
@@ -340,9 +348,11 @@ function side() {
       <dt>Filings shown</dt><dd class="num">${c.evidence.length}</dd>
       <dt>Made at</dt><dd>${tIST(c.made_at)}</dd>
       ${c.attempt > 1 ? `<dt>Attempt</dt><dd>${c.attempt}</dd>` : ""}
-      <dt>Sessions elapsed</dt><dd>${progress(selected, session)}</dd>
+      <dt>${c.outcome ? "Result" : "Sessions elapsed"}</dt><dd>${scoring(c, selected, session)}</dd>
     </dl>
-    <p class="fine" style="margin:8px 0 0">Right or wrong is decided after ${HORIZON} sessions, by how ${selected} did against the other 40. Until then it is pending, not scored.</p>
+    <p class="fine" style="margin:8px 0 0">${c.outcome
+      ? `Settled on ${dlong(c.outcome.forward_end)}: ${selected} returned ${pct(c.outcome.forward_return)} over ${HORIZON} sessions. The benchmark itself scores each session's 41 calls together by rank, not one call at a time.`
+      : `Settled after ${HORIZON} sessions, by how ${selected} did against the Nifty and the other 40. Until then it is pending, not scored.`}</p>
     ${c.error ? `<div class="banner" style="color:#ff8a83;background:var(--neg-bg);border-color:#4a1d1f">${esc(c.error)}</div>` : ""}
     ${c.warmup ? `<div class="banner">Warm-up session. Recorded and hash-chained, but excluded from the pre-registered analysis (warm-up ends ${dlong(L.warmup_end)}).</div>` : ""}`;
 
@@ -404,7 +414,7 @@ function insights() {
       rows.map(([d, x]) => `<tr class="${d === session ? "cur" : ""}"><td>${dlong(d)}</td>
         <td><span class="pill ${x.verdict || "none"}">${x.verdict ? nice(x.verdict) : "failed"}</span></td>
         <td class="num">${x.confidence ?? "—"}${x.confidence ? " / 5" : ""}</td><td class="num">₹${fmt(x.price)}</td>
-        <td>${x.verdict ? progress(selected, d) : "—"}</td></tr>`).join("")}</tbody></table>`;
+        <td>${x.verdict ? scoring(x, selected, d) : "—"}</td></tr>`).join("")}</tbody></table>`;
   $("#insights").innerHTML = head + body + hist;
 }
 

@@ -41,11 +41,27 @@ def witness(head: str) -> dict:
     return {"witnessed": head in local, "pushed": None if res.returncode else head in _heads(res.stdout)}
 
 
+def _outcome(verdict: str | None, row) -> dict | None:
+    """A settled call's result. 'right' is v1's per-call hit rule (the
+    dashboard's): bullish and beat the Nifty, or bearish and lagged it.
+    Neutral has no direction to be right about. The benchmark's actual score
+    is the per-session rank correlation, not this."""
+    if row is None or verdict is None:
+        return None
+    end, fwd, excess = row
+    right = None if verdict == "NEUTRAL" or excess is None else (excess > 0 if verdict == "BULLISH" else excess < 0)
+    return {"forward_end": end, "forward_return": round(fwd, 2),
+            "excess_return": None if excess is None else round(excess, 2), "right": right}
+
+
 def export_ledger(conn) -> dict:
     conn.row_factory = None
     cols = [d[1] for d in conn.execute("PRAGMA table_info(predictions)")]
     rows = [dict(zip(cols, r)) for r in conn.execute("SELECT * FROM predictions ORDER BY seq")]
     urls = dict(conn.execute("SELECT provider_ref, url FROM filings WHERE url IS NOT NULL").fetchall())
+    has_outcomes = conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'outcomes'").fetchone()
+    outcomes = {r[0]: r[1:] for r in conn.execute(
+        "SELECT prediction_seq, forward_end, forward_return_pct, excess_return_pct FROM outcomes")} if has_outcomes else {}
 
     # A rerun appends attempt 2 for a stock whose attempt 1 failed; the call
     # that counts is the latest attempt.
@@ -65,6 +81,7 @@ def export_ledger(conn) -> dict:
             "bull_case": brief.get("bull_case"), "bear_case": brief.get("bear_case"),
             "drivers": brief.get("drivers", []), "evidence": evidence,
             "entry_hash": r["entry_hash"],
+            "outcome": _outcome(r["verdict"], outcomes.get(r["seq"])),
         }
 
     ok, n, bad = verify_chain(conn)

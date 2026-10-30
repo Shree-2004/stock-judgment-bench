@@ -51,6 +51,14 @@ def test_export_shows_the_latest_attempt_and_links_evidence(conn):
     assert out["chain"]["ok"] and out["chain"]["rows"] == 3
 
 
+def test_settled_calls_carry_their_outcome_with_v1s_hit_rule():
+    assert export_site._outcome("BULLISH", ("2026-12-01", 3.0, 1.2))["right"] is True
+    assert export_site._outcome("BEARISH", ("2026-12-01", 3.0, 1.2))["right"] is False
+    assert export_site._outcome("BEARISH", ("2026-12-01", -3.0, 0.0))["right"] is False    # flat isn't a hit
+    assert export_site._outcome("NEUTRAL", ("2026-12-01", 3.0, 1.2))["right"] is None
+    assert export_site._outcome("BULLISH", None) is None                                  # not settled yet
+
+
 def test_a_failed_site_refresh_is_reported_not_raised():
     from scripts.live_predict import refresh_site
 
