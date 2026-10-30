@@ -94,8 +94,42 @@
   .seg button.on{background:var(--panel-2);color:var(--ink)}
   .legend{margin-left:auto;display:flex;gap:14px;font-size:11.5px;color:var(--muted)}
   .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-  #chart{flex:1;min-height:340px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+  #chart{flex:none;height:min(56vh,520px);min-height:320px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
   .note{font-size:11.5px;color:var(--dim);margin-top:8px}
+  .picker{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:999px;
+          font:inherit;font-size:12px;padding:4px 10px;cursor:pointer}
+
+  /* insights */
+  .sec{display:flex;align-items:baseline;gap:10px;margin:26px 0 10px}
+  .sec h3{margin:0;font-size:15px;letter-spacing:-.01em}
+  .sec .tag{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+  .ins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .ic-card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 15px}
+  .ic-card .lab{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);text-transform:uppercase;
+                letter-spacing:.07em;font-weight:600;margin-bottom:8px}
+  .ic-card .lab i{width:8px;height:8px;border-radius:50%}
+  .ic-card p{margin:0;font-size:13px;color:#cfd7e0}
+  .ic-card ul{margin:0;padding-left:16px;font-size:13px;color:#cfd7e0}
+  .ic-card li{margin:0 0 6px}
+  .cite{font-family:var(--mono);font-size:11px;color:var(--accent);background:#0f1a2a;border:1px solid #1b3352;
+        border-radius:5px;padding:0 5px;margin-left:4px;white-space:nowrap}
+  .filings{display:grid;gap:8px}
+  .filing{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;background:var(--panel);border:1px solid var(--line);
+          border-radius:10px;padding:10px 13px}
+  .filing .n{font-family:var(--mono);font-size:12px;color:var(--accent);grid-row:span 2;padding-top:1px}
+  .filing .hl{font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .filing .meta{font-size:11.5px;color:var(--dim);display:flex;gap:10px;flex-wrap:wrap}
+  .cat{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .empty{background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:14px;color:var(--muted);font-size:13px}
+  table.hist{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  table.hist th{text-align:left;font-weight:600;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;
+                padding:9px 12px;border-bottom:1px solid var(--line)}
+  table.hist td{padding:8px 12px;border-bottom:1px solid #1b2027}
+  table.hist tr:last-child td{border-bottom:0}
+  table.hist tr.cur td{background:var(--panel-2)}
+  .prog{display:inline-flex;align-items:center;gap:8px}
+  .prog .bar{width:70px;height:5px;border-radius:9px;background:var(--panel-2);overflow:hidden}
+  .prog .bar b{display:block;height:100%;background:var(--warn)}
 
   /* right */
   .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px}
@@ -126,7 +160,8 @@
     .chips{margin-left:0}
     .left{border-right:0;border-bottom:1px solid var(--line);max-height:300px}
     .right{border-left:0;border-top:1px solid var(--line)}
-    #chart{min-height:380px}
+    #chart{height:380px}
+    .ins{grid-template-columns:minmax(0,1fr)}
   }
   @media (max-width:560px){
     .top,.center{padding-left:16px;padding-right:16px}
@@ -169,6 +204,7 @@
       </div>
       <div id="chart"></div>
       <div class="note">Daily NSE candles, unadjusted, the same close each call read. Markers sit on the session a call was made, after that day's close. Today's bar appears after the close.</div>
+      <div id="insights"></div>
     </section>
     <aside class="col right" id="side"></aside>
   </main>
@@ -182,6 +218,16 @@ const dlong = s => new Date(s + "T00:00:00").toLocaleDateString("en-GB", {weekda
 const tIST = s => new Date(s).toLocaleString("en-GB", {timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"}) + " IST";
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 const COLORS = {BULLISH: "#3fb950", BEARISH: "#f85149", NEUTRAL: "#8b97a6"};
+const HORIZON = 21;          // a call is scored on the 21 sessions after it (M4)
+const nice = v => v ? v[0] + v.slice(1).toLowerCase() : "no call";
+
+// Real trading sessions since a call, counted from the candles rather than
+// estimated from a calendar, so holidays are handled by the exchange itself.
+const elapsed = (sym, d) => Math.min(HORIZON, (P[sym] || []).filter(b => b.time > d).length);
+const progress = (sym, d) => {
+  const n = elapsed(sym, d);
+  return `<span class="prog"><span class="bar"><b style="width:${n / HORIZON * 100}%"></b></span>${n} / ${HORIZON}${n >= HORIZON ? " · ready to score" : ""}</span>`;
+};
 
 let L, P, symbols, session, selected, chart, candles, volume, rangeDays = 63;
 
@@ -192,7 +238,9 @@ function quoteOf(sym) {
 }
 
 function chips() {
-  const c = L.chain, out = [`<span class="chip">Session <b>${dlong(session)}</b></span>`];
+  const days = Object.keys(L.sessions).sort().reverse();
+  const c = L.chain, out = [`<select id="pick" class="picker" aria-label="Session">${
+    days.map(d => `<option value="${d}"${d === session ? " selected" : ""}>Session ${dlong(d)}</option>`).join("")}</select>`];
   out.push(c.ok ? `<span class="chip ok">Chain verified · ${c.rows} rows</span>`
                 : `<span class="chip bad">Chain BROKEN at seq ${esc(c.bad_seq)}</span>`);
   out.push(c.pushed === true ? `<span class="chip ok">On GitHub</span>`
@@ -219,7 +267,7 @@ function list() {
     .map(s => {
       const {last, chg} = quoteOf(s), v = calls[s]?.verdict;
       return `<div class="row${s === selected ? " sel" : ""}" data-s="${s}" role="button" tabindex="0">
-        <div class="sym">${s} <span class="pill ${v || "none"}">${v ? v[0] + v.slice(1).toLowerCase() : "no call"}</span></div>
+        <div class="sym">${s} <span class="pill ${v || "none"}">${nice(v)}</span></div>
         <div class="px num">${fmt(last?.close)}</div>
         <div class="nm" title="${esc(L.names[s])}">${esc(L.names[s])}</div>
         <div class="ch num ${chg >= 0 ? "pos" : "neg"}">${pct(chg)}</div>
@@ -292,7 +340,9 @@ function side() {
       <dt>Filings shown</dt><dd class="num">${c.evidence.length}</dd>
       <dt>Made at</dt><dd>${tIST(c.made_at)}</dd>
       ${c.attempt > 1 ? `<dt>Attempt</dt><dd>${c.attempt}</dd>` : ""}
+      <dt>Sessions elapsed</dt><dd>${progress(selected, session)}</dd>
     </dl>
+    <p class="fine" style="margin:8px 0 0">Right or wrong is decided after ${HORIZON} sessions, by how ${selected} did against the other 40. Until then it is pending, not scored.</p>
     ${c.error ? `<div class="banner" style="color:#ff8a83;background:var(--neg-bg);border-color:#4a1d1f">${esc(c.error)}</div>` : ""}
     ${c.warmup ? `<div class="banner">Warm-up session. Recorded and hash-chained, but excluded from the pre-registered analysis (warm-up ends ${dlong(L.warmup_end)}).</div>` : ""}`;
 
@@ -322,10 +372,46 @@ function side() {
     </div>`;
 }
 
+function insights() {
+  const c = (L.sessions[session] || {})[selected];
+  const head = `<div class="sec"><h3>Why the model called it this way</h3><span class="tag">model output · ${esc(L.model)} · not advice</span></div>`;
+  let body;
+  if (!c || !c.verdict) {
+    body = `<div class="empty">${c?.error ? "This call failed and was recorded as a failure: " + esc(c.error) : `No call for ${selected} on this session.`}</div>`;
+  } else {
+    const ev = c.evidence || [];
+    const cite = n => {
+      const e = ev[n - 1];
+      return e?.url ? `<a class="cite" href="${esc(e.url)}" target="_blank" rel="noopener">[${n}]</a>` : `<span class="cite">[${n}]</span>`;
+    };
+    const drivers = (c.drivers || []).map(d => `<li>${esc(d.claim)}${d.citation ? cite(d.citation) : ""}</li>`).join("");
+    body = `<div class="ins">
+        <div class="ic-card"><div class="lab"><i style="background:var(--pos)"></i>Bull case</div><p>${esc(c.bull_case) || "—"}</p></div>
+        <div class="ic-card"><div class="lab"><i style="background:var(--neg)"></i>Bear case</div><p>${esc(c.bear_case) || "—"}</p></div>
+        <div class="ic-card"><div class="lab"><i style="background:var(--accent)"></i>Reasons it gave</div>${drivers ? `<ul>${drivers}</ul>` : `<p class="mut">None stated.</p>`}</div>
+      </div>
+      <div class="sec"><h3>Filings it was shown</h3><span class="tag">only filings this system had seen before the call · ${ev.length}</span></div>
+      ${ev.length ? `<div class="filings">${ev.map((e, i) => `
+        <div class="filing"><span class="n">[${i + 1}]</span>
+          <div class="hl">${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.headline)}</a>` : esc(e.headline)}</div>
+          <div class="meta"><span class="cat">${esc(e.category)}</span><span>first seen ${tIST(e.first_seen_at)}</span></div>
+        </div>`).join("")}</div>`
+      : `<div class="empty">No filings for ${selected} in the 21 days before this call. It rests on price data alone.</div>`}`;
+  }
+  const rows = Object.keys(L.sessions).sort().reverse().map(d => [d, L.sessions[d][selected]]).filter(([, x]) => x);
+  const hist = `<div class="sec"><h3>${selected}'s call history</h3><span class="tag">${rows.length} session${rows.length === 1 ? "" : "s"}</span></div>
+    <table class="hist"><thead><tr><th>Session</th><th>Call</th><th>Confidence</th><th>Close it read</th><th>Scoring</th></tr></thead><tbody>${
+      rows.map(([d, x]) => `<tr class="${d === session ? "cur" : ""}"><td>${dlong(d)}</td>
+        <td><span class="pill ${x.verdict || "none"}">${x.verdict ? nice(x.verdict) : "failed"}</span></td>
+        <td class="num">${x.confidence ?? "—"}${x.confidence ? " / 5" : ""}</td><td class="num">₹${fmt(x.price)}</td>
+        <td>${x.verdict ? progress(selected, d) : "—"}</td></tr>`).join("")}</tbody></table>`;
+  $("#insights").innerHTML = head + body + hist;
+}
+
 function select(sym) {
   selected = sym;
   try { history.replaceState(null, "", "#" + sym); } catch {}
-  list(); quote(); drawChart(); side();
+  list(); quote(); drawChart(); side(); insights();
   document.querySelector(".row.sel")?.scrollIntoView({block: "nearest"});
 }
 
@@ -340,6 +426,7 @@ async function boot() {
   symbols = Object.keys(L.names).sort();
   session = Object.keys(L.sessions).sort().at(-1);
   chips(); strip();
+  $("#pick").onchange = e => { session = e.target.value; list(); side(); insights(); };
   $("#q").oninput = list;
   $("#list").onclick = e => { const r = e.target.closest(".row"); if (r) select(r.dataset.s); };
   $("#list").onkeydown = e => { if (e.key === "Enter") { const r = e.target.closest(".row"); if (r) select(r.dataset.s); } };

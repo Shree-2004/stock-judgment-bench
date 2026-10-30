@@ -51,6 +51,16 @@ def test_export_shows_the_latest_attempt_and_links_evidence(conn):
     assert out["chain"]["ok"] and out["chain"]["rows"] == 3
 
 
+def test_a_failed_site_refresh_is_reported_not_raised():
+    from scripts.live_predict import refresh_site
+
+    def boom():
+        raise OSError("disk full")
+
+    assert refresh_site(boom) == "failed: OSError: disk full"
+    assert refresh_site(lambda: "41 calls") == "41 calls"
+
+
 def test_export_of_an_empty_ledger_says_so(conn):
     out = export_site.export_ledger(conn)
     assert out["sessions"] == {} and out["chain"]["head"] is None

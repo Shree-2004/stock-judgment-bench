@@ -102,22 +102,28 @@ def export_prices(symbols) -> dict:
     return out
 
 
+def write_site(db: Path = store.DEFAULT_DB, prices: bool = True) -> str:
+    """Write site/data/*.json and return a one-line summary. Called nightly by
+    scripts.live_predict after the ledger is committed."""
+    OUT.mkdir(parents=True, exist_ok=True)
+    ledger = export_ledger(store.connect(db, read_only=True))
+    (OUT / "ledger.json").write_text(json.dumps(ledger, ensure_ascii=False), encoding="utf-8")
+    summary = (f"{sum(len(v) for v in ledger['sessions'].values())} calls over {len(ledger['sessions'])} "
+               f"session(s), chain {'OK' if ledger['chain']['ok'] else 'BROKEN'}")
+    if prices:
+        bars = export_prices(list(NSE_NAMES))
+        (OUT / "prices.json").write_text(json.dumps(bars), encoding="utf-8")
+        missing = sorted(set(NSE_NAMES) - set(bars))
+        summary += f"; prices {len(bars)} symbols" + (f", missing {missing}" if missing else "")
+    return summary
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--db", type=Path, default=store.DEFAULT_DB)
     ap.add_argument("--no-prices", action="store_true", help="refresh the ledger only")
     args = ap.parse_args(argv)
-
-    OUT.mkdir(parents=True, exist_ok=True)
-    ledger = export_ledger(store.connect(args.db, read_only=True))
-    (OUT / "ledger.json").write_text(json.dumps(ledger, ensure_ascii=False), encoding="utf-8")
-    print(f"ledger: {sum(len(v) for v in ledger['sessions'].values())} calls over {len(ledger['sessions'])} "
-          f"session(s); chain {'OK' if ledger['chain']['ok'] else 'BROKEN'}")
-    if not args.no_prices:
-        prices = export_prices(list(NSE_NAMES))
-        (OUT / "prices.json").write_text(json.dumps(prices), encoding="utf-8")
-        missing = sorted(set(NSE_NAMES) - set(prices))
-        print(f"prices: {len(prices)} symbols" + (f"; missing {missing}" if missing else ""))
+    print(write_site(args.db, prices=not args.no_prices))
     return 0
 
 

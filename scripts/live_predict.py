@@ -11,6 +11,9 @@ and before the next open. A rerun the same evening fills in stocks that failed
 or were cut off by the provider's daily quota. It never touches a stock that
 already succeeded.
 
+After the commit it rebuilds site/data (scripts.export_site). That step can
+fail without affecting the round or the exit code.
+
 Exit codes: 0 round complete · 1 nothing to do (holiday / prices not posted) ·
 2 round partial or failed · 3 provider quota exhausted (rerun later).
 """
@@ -94,6 +97,18 @@ def commit_chain(session: date, state: str, head: str) -> str:
     return "committed" if res.returncode == 0 else f"commit failed: {(res.stderr or res.stdout).strip()[:200]}"
 
 
+def refresh_site(write=None) -> str:
+    """Rebuild site/data after a round. Runs after the ledger is committed, and
+    a failure here is logged and nothing more: the site is a view, never part
+    of the record."""
+    try:
+        if write is None:
+            from scripts.export_site import write_site as write
+        return write()
+    except Exception as exc:
+        return f"failed: {type(exc).__name__}: {exc}"[:200]
+
+
 def cmd_status(conn) -> int:
     rounds = conn.execute("SELECT session_date, state, n_ok, n_failed, head_hash FROM ledger_rounds "
                           "ORDER BY id DESC LIMIT 10").fetchall()
@@ -151,10 +166,11 @@ def main(argv: list[str] | None = None) -> int:
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
     append_chain_line(CHAIN_FILE, session, summary["state"], total, summary["head"], stamp)
     witness = "skipped (--no-commit)" if args.no_commit else commit_chain(session, summary["state"], summary["head"])
+    site = refresh_site()
 
     line = (f"{stamp} session={session} state={summary['state']} attempted={summary['attempted']} "
             f"ok={summary['ok']} failed={summary['failed']} head={summary['head'][:12]} git={witness}"
-            + (f" quota={summary['quota'][:80]!r}" if summary["quota"] else ""))
+            + (f" quota={summary['quota'][:80]!r}" if summary["quota"] else "") + f" site={site!r}")
     LOG.parent.mkdir(exist_ok=True)
     with LOG.open("a", encoding="utf-8") as f:
         f.write(line + "\n")
