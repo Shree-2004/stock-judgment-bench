@@ -217,6 +217,11 @@ python -m scripts.label_filings score     # after filling labels/<rules-version>
 3. *Primary:* the mean per-session Spearman correlation between verdict and forward return. It is computed over **non-overlapping** sessions: the first non-warm-up session, then every 21st session after it. This is v1's metric, so the two are directly comparable.
 4. *Secondary:* the same over every session, with a standard error that accounts for overlap. It is reported alongside the primary, never instead of it.
 5. *Power, stated now:* v1's 90 dates gave a detection floor of about |0.066|. The primary series adds about 12 dates a year, so the ledger can't confirm or rule out an edge of v1's size for years. Its first job is the memorisation control: whether the post-training-cutoff correlation differs from v1's in-sample −0.015.
+6. *Model continuity (added 2026-10-30, still before any outcome exists).* A track is one model name plus one prompt version, and it is never silently continued on a different model. A track ends at its last successful session when either of these happens:
+   - the provider retires the model, meaning two consecutive sessions in which every call fails with not-found, deprecated, or permission errors
+   - the build behind the name changes: Gemini returns `modelVersion` with each answer, stored in `brief_json` from 2026-10-30 (the 2026-10-29 round predates this field)
+
+   A replacement model starts a **new** track with its own warm-up and its own analysis. Results are reported per track, and tracks are never pooled into one number. `--status` lists the builds seen per session so a change is visible the evening it happens.
 
 ```powershell
 python -m scripts.live_predict              # today's round (after the close)
@@ -252,7 +257,7 @@ Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; t
 `tests/test_frozen_v1.py` guards the result itself: the 90 cutoffs are committed, and the report recomputed from the local cache must equal `results-final.json` exactly. It exists because the benchmark once wasn't frozen — the window list ended at *today*, so a new window appeared every 21 trading days and the report stopped reproducing. The end is now pinned (`BENCHMARK_END`, 2026-09-01).
 
 ```powershell
-pytest -m "not network"   # 261 offline
+pytest -m "not network"   # 264 offline
 pytest                    # + live leak tests
 ```
 
@@ -340,5 +345,5 @@ evals/      grid, outcomes, baselines, scoring, number_check, attribution, repor
 llm/        prompts (versioned), brief parser, provider-agnostic client
 scripts/    build_grid, fetch_disclosures, run_baselines, run_briefs, report
 app/        cli, server + static dashboard, streamlit dashboard
-tests/      261 offline, plus live leak tests
+tests/      264 offline, plus live leak tests
 ```

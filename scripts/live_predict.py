@@ -116,6 +116,16 @@ def cmd_status(conn) -> int:
     print(f"{total[0]:,} ledger rows over {total[1]} session(s); head {head_hash(conn)[:16]}")
     for r in rounds:
         print(f"  {r[0]}  {r[1]:<7}  ok={r[2]:<3} failed={r[3]:<3} head={(r[4] or '')[:12]}")
+    # README analysis plan item 6: a change of build behind the model name ends a track.
+    builds = conn.execute(
+        "SELECT session_date, model, GROUP_CONCAT(DISTINCT COALESCE("
+        "json_extract(brief_json, '$.usage.model_version'), 'unrecorded')) "
+        "FROM predictions WHERE verdict IS NOT NULL GROUP BY session_date, model "
+        "ORDER BY session_date DESC LIMIT 10").fetchall()
+    print("model builds by session:")
+    for session, model, seen in builds:
+        flag = "   <-- more than one build in a session" if "," in (seen or "") else ""
+        print(f"  {session}  {model}  {seen}{flag}")
     return 0
 
 

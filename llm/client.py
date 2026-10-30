@@ -426,6 +426,9 @@ def call_gemini(
             "prompt_tokens": u.get("promptTokenCount", 0),
             "completion_tokens": u.get("candidatesTokenCount", 0),
             "total_tokens": u.get("totalTokenCount", 0),
+            # The build that actually answered. A model name can be repointed
+            # by the provider; this is how the live ledger would notice.
+            "model_version": data.get("modelVersion"),
         }
         return text, usage
 
