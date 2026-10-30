@@ -222,6 +222,7 @@ python -m scripts.label_filings score     # after filling labels/<rules-version>
 python -m scripts.live_predict              # today's round (after the close)
 python -m scripts.live_predict --status
 python -m scripts.live_predict --verify     # recompute the hash chain
+streamlit run app/live_dashboard.py         # "Predictions" page: each day's calls, their evidence, chain + GitHub check
 powershell -ExecutionPolicy Bypass -File scripts\register_ledger_task.ps1   # weekdays 18:30 + 21:30
 ```
 
