@@ -355,7 +355,12 @@ def call_groq(
         except (KeyError, IndexError):
             last_error = f"unexpected response shape: {str(data)[:160]}"
             continue
-        return text, data.get("usage", {}) or {}
+        # The model id Groq says answered, plus its backend fingerprint, kept
+        # for the live ledger's model-continuity rule (README plan item 6).
+        usage = dict(data.get("usage", {}) or {})
+        usage["model_version"] = data.get("model")
+        usage["system_fingerprint"] = data.get("system_fingerprint")
+        return text, usage
 
     raise LLMUnavailableError(last_error)
 
@@ -469,9 +474,10 @@ def _gemini_retry_delay(resp) -> float | None:
     return None
 
 
-def call_llm(system: str, user: str, model: str | None = None) -> tuple[str, dict]:
-    """Dispatch on the configured provider."""
-    provider = settings.llm_provider
+def call_llm(system: str, user: str, model: str | None = None, provider: str | None = None) -> tuple[str, dict]:
+    """Dispatch on `provider`, or the configured one. The live ledger runs one
+    track per provider in the same process, so it passes this explicitly."""
+    provider = provider or settings.llm_provider
     if provider == "gemini":
         return call_gemini(system, user, model=model)
     if provider == "groq":
@@ -489,6 +495,7 @@ def generate_brief(
     prompt_version: str = DEFAULT_VERSION,
     model: str | None = None,
     trace: bool = True,
+    provider: str | None = None,
 ) -> BriefResult:
     """Build the prompt, call the model, parse, score L1, trace the lot."""
     prompt, user_message = build_prompt(snapshot, disclosures, prompt_version)
@@ -534,7 +541,7 @@ def generate_brief(
         )
 
         with gen_cm as generation:
-            text, usage = call_llm(prompt.system, user_message, model=model)
+            text, usage = call_llm(prompt.system, user_message, model=model, provider=provider)
             if generation is not None and hasattr(generation, "update"):
                 generation.update(
                     output=text,

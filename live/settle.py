@@ -76,13 +76,15 @@ class Call:
 
 
 def counting_calls(conn) -> list[Call]:
-    """The call that counts per (session, stock): the latest attempt, if it
-    produced a verdict. A failed latest attempt means no call that session."""
+    """The call that counts per (track, session, stock): the latest attempt, if
+    it produced a verdict. A failed latest attempt means no call that session."""
     rows = conn.execute(
         "SELECT p.seq, p.session_date, p.symbol, p.verdict, p.made_at, p.warmup, p.model, p.prompt_version "
-        "FROM predictions p JOIN (SELECT session_date, symbol, MAX(attempt) AS a FROM predictions "
-        "GROUP BY session_date, symbol) m ON p.session_date = m.session_date AND p.symbol = m.symbol "
-        "AND p.attempt = m.a WHERE p.verdict IS NOT NULL ORDER BY p.session_date, p.symbol").fetchall()
+        "FROM predictions p JOIN (SELECT session_date, symbol, model, prompt_version, MAX(attempt) AS a "
+        "FROM predictions GROUP BY session_date, symbol, model, prompt_version) m "
+        "ON p.session_date = m.session_date AND p.symbol = m.symbol AND p.model = m.model "
+        "AND p.prompt_version = m.prompt_version AND p.attempt = m.a "
+        "WHERE p.verdict IS NOT NULL ORDER BY p.model, p.session_date, p.symbol").fetchall()
     return [Call(r[0], date.fromisoformat(r[1]), r[2], r[3], r[4], bool(r[5]), r[6], r[7]) for r in rows]
 
 

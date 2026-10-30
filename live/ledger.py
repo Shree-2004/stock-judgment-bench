@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS predictions (
     error               TEXT,
     prev_hash           TEXT NOT NULL,
     entry_hash          TEXT NOT NULL UNIQUE,
-    UNIQUE (session_date, symbol, attempt)
+    UNIQUE (session_date, symbol, model, prompt_version, attempt)
 );
 
 CREATE TRIGGER IF NOT EXISTS predictions_no_update BEFORE UPDATE ON predictions
@@ -99,6 +99,9 @@ BEGIN SELECT RAISE(ABORT, 'predictions are append-only'); END;
 CREATE TRIGGER IF NOT EXISTS predictions_no_delete BEFORE DELETE ON predictions
 BEGIN SELECT RAISE(ABORT, 'predictions are append-only'); END;
 """
+# Until 2026-10-30 a row was unique per (session, symbol, attempt), which
+# allowed one model only. The second track needs the model in the key.
+_OLD_UNIQUE = "UNIQUE (session_date, symbol, attempt)"
 
 # The columns the hash covers, in a fixed order. Everything except seq (a
 # storage detail) and entry_hash (the output).
@@ -108,8 +111,46 @@ HASHED = ("round_id", "session_date", "symbol", "attempt", "made_at", "model", "
 
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
+    old = conn.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'predictions'").fetchone()
+    if old and _OLD_UNIQUE in old[0]:
+        migrate_track_key(conn)
     conn.executescript(_SCHEMA)
     conn.commit()
+
+
+def migrate_track_key(conn: sqlite3.Connection) -> None:
+    """Rebuild `predictions` with the model in its unique key, copying every
+    row verbatim (seq included).
+
+    The hash covers row contents, not storage, so the chain must verify and
+    the head must be unchanged afterwards. The head is what chain.txt and the
+    pushed history witness. If either check fails, nothing is committed.
+    """
+    before_ok, before_n, _ = verify_chain(conn)
+    before_head = head_hash(conn)
+    if not before_ok:
+        raise RuntimeError("refusing to migrate a ledger whose chain does not verify")
+    new_table = _SCHEMA[_SCHEMA.index("CREATE TABLE IF NOT EXISTS predictions"):_SCHEMA.index("CREATE TRIGGER")]
+    row_factory = conn.row_factory
+    conn.execute("PRAGMA foreign_keys = OFF")          # must be set outside a transaction
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        conn.execute("DROP TRIGGER IF EXISTS predictions_no_update")
+        conn.execute("DROP TRIGGER IF EXISTS predictions_no_delete")
+        conn.execute(new_table.replace("IF NOT EXISTS predictions", "predictions_new"))
+        conn.execute("INSERT INTO predictions_new SELECT * FROM predictions ORDER BY seq")
+        conn.execute("DROP TABLE predictions")
+        conn.execute("ALTER TABLE predictions_new RENAME TO predictions")
+        ok, n, _ = verify_chain(conn)
+        if not (ok and n == before_n and head_hash(conn) == before_head):
+            raise RuntimeError(f"migration check failed: ok={ok} rows {n}/{before_n}")
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+    finally:
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.row_factory = row_factory
 
 
 def entry_hash(row: dict) -> str:
@@ -142,16 +183,17 @@ def finish_round(conn, round_id: int, **fields) -> None:
     conn.commit()
 
 
-def done_symbols(conn, session: date) -> set[str]:
-    """Stocks that already have a successful prediction for this session."""
+def done_symbols(conn, session: date, model: str, prompt_version: str) -> set[str]:
+    """Stocks that already have a successful prediction for this session, on this track."""
     return {r[0] for r in conn.execute(
-        "SELECT symbol FROM predictions WHERE session_date = ? AND error IS NULL",
-        (session.isoformat(),))}
+        "SELECT symbol FROM predictions WHERE session_date = ? AND model = ? AND prompt_version = ? "
+        "AND error IS NULL", (session.isoformat(), model, prompt_version))}
 
 
-def next_attempt(conn, session: date, symbol: str) -> int:
-    row = conn.execute("SELECT MAX(attempt) FROM predictions WHERE session_date = ? AND symbol = ?",
-                       (session.isoformat(), symbol)).fetchone()
+def next_attempt(conn, session: date, symbol: str, model: str, prompt_version: str) -> int:
+    row = conn.execute("SELECT MAX(attempt) FROM predictions WHERE session_date = ? AND symbol = ? "
+                       "AND model = ? AND prompt_version = ?",
+                       (session.isoformat(), symbol, model, prompt_version)).fetchone()
     return (row[0] or 0) + 1
 
 
@@ -181,7 +223,7 @@ def append(conn, round_id: int, session: date, p: Prediction) -> dict:
             "round_id": round_id,
             "session_date": session.isoformat(),
             "symbol": p.symbol,
-            "attempt": next_attempt(conn, session, p.symbol),
+            "attempt": next_attempt(conn, session, p.symbol, p.model, p.prompt_version),
             "made_at": p.made_at,
             "model": p.model,
             "prompt_version": p.prompt_version,

@@ -101,7 +101,7 @@ That separation is only visible because L1, L2 and L3 were measured independentl
 | — | **Full 3,690-brief run** | **done** — frozen as tag `v1.0` |
 | 2.0 / M1 | Live filing watcher (NSE RSS → SQLite → dashboard) | done |
 | 2.0 / M2 | Rule-based filing categories, scored on a held-out sample | v1: 72% agreement with AI-tool labels; v2 (held-out): 88% (44/50) |
-| 2.0 / M3 | Forward ledger: 41 stocks daily, hash-chained, witnessed in git | built; first round 2026-10-29 |
+| 2.0 / M3 | Forward ledger: 41 stocks daily, hash-chained, witnessed in git | built; first round 2026-10-29; second track (gpt-oss-120b) from 2026-10-30 |
 | 2.0 / M4 | Settlement + the pre-registered analysis | built and tested (v1 replay reproduces −0.0153 / t −0.65); first calls settle ~2026-11-27 |
 
 ## Live: forward-only record (2.0)
@@ -223,6 +223,13 @@ python -m scripts.label_filings score     # after filling labels/<rules-version>
    - the build behind the name changes: Gemini returns `modelVersion` with each answer, stored in `brief_json` from 2026-10-30 (the 2026-10-29 round predates this field)
 
    A replacement model starts a **new** track with its own warm-up and its own analysis. Results are reported per track, and tracks are never pooled into one number. `--status` lists the builds seen per session so a change is visible the evening it happens.
+7. *Second track (added 2026-10-30, before any outcome exists).* `openai/gpt-oss-120b` on Groq, reasoning effort `low`, stored as model `openai/gpt-oss-120b@low`. Everything else is shared with the first track:
+   - the same prompt (`v1_structured`) and the same 41 stocks
+   - the identical price snapshot: each stock is fetched once per evening and given to both models
+   - the same evidence rule and the same warm-up end (2026-11-18, set by the filing store, not the model)
+   - one shared hash chain
+
+   Its first round is 2026-10-30. It is analysed exactly like the first track (items 1–5) and reported beside it. The comparison between tracks is the **paired** difference in per-session rank correlation over primary sessions both tracks have. That comparison is exploratory: at about 12 primary sessions a year it is underpowered for longer than either track alone. v1 has 671 gpt-oss briefs on a subset of windows, so this track has only a partial in-sample reference, which is reported as such.
 
 **M4 — settlement** (`live/settle.py`, built before any call was due). Each evening after the round, every call whose 21-session window has closed is settled once into an append-only `outcomes` table. Settlement uses v1's `get_outcome` and `score_l3` unchanged. A test replays v1's cached briefs through M4's summariser and gets v1's published −0.0153 / t −0.65. Two details the plan didn't spell out were fixed before any outcome existed:
 - a scheduled primary session the ledger doesn't have (the machine was off) is reported as **missing**, never replaced by a neighbouring session
@@ -263,7 +270,7 @@ Five are named `test_leak_1` … `test_leak_5` in `tests/test_market_data.py`; t
 `tests/test_frozen_v1.py` guards the result itself: the 90 cutoffs are committed, and the report recomputed from the local cache must equal `results-final.json` exactly. It exists because the benchmark once wasn't frozen — the window list ended at *today*, so a new window appeared every 21 trading days and the report stopped reproducing. The end is now pinned (`BENCHMARK_END`, 2026-09-01).
 
 ```powershell
-pytest -m "not network"   # 272 offline
+pytest -m "not network"   # 276 offline
 pytest                    # + live leak tests
 ```
 
@@ -351,5 +358,5 @@ evals/      grid, outcomes, baselines, scoring, number_check, attribution, repor
 llm/        prompts (versioned), brief parser, provider-agnostic client
 scripts/    build_grid, fetch_disclosures, run_baselines, run_briefs, report
 app/        cli, server + static dashboard, streamlit dashboard
-tests/      272 offline, plus live leak tests
+tests/      276 offline, plus live leak tests
 ```

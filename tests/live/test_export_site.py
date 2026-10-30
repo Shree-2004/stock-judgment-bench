@@ -45,7 +45,7 @@ def test_export_shows_the_latest_attempt_and_links_evidence(conn):
     append(conn, rid, SESSION, _pred("TCS", verdict="BEARISH", confidence=2, evidence=[]))   # rerun
 
     out = export_site.export_ledger(conn)
-    calls = out["sessions"][SESSION.isoformat()]
+    calls = out["tracks"]["m · v1"]["sessions"][SESSION.isoformat()]
     assert (calls["TCS"]["verdict"], calls["TCS"]["attempt"], calls["TCS"]["error"]) == ("BEARISH", 2, None)
     assert calls["INFY"]["evidence"][0]["url"] == "https://x/1.pdf"
     assert out["chain"]["ok"] and out["chain"]["rows"] == 3
@@ -71,4 +71,4 @@ def test_a_failed_site_refresh_is_reported_not_raised():
 
 def test_export_of_an_empty_ledger_says_so(conn):
     out = export_site.export_ledger(conn)
-    assert out["sessions"] == {} and out["chain"]["head"] is None
+    assert out["tracks"] == {} and out["chain"]["head"] is None

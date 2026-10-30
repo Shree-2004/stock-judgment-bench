@@ -229,3 +229,46 @@ def test_market_data_failure_is_recorded_with_its_evidence(conn):
 def ledger_error(msg):
     from data.market_data import MarketDataError
     return MarketDataError(msg)
+
+
+# ---------------------------------------------------------------------------
+# tracks (second model, 2026-10-30)
+# ---------------------------------------------------------------------------
+
+def test_two_models_each_get_a_call_per_stock_on_one_chain(conn):
+    rid = start_round(conn, SESSION, NOW.isoformat(), "m", "v1")
+    a = append(conn, rid, SESSION, _pred("INFY", verdict="BULLISH"))
+    b = append(conn, rid, SESSION, Prediction(symbol="INFY", made_at=NOW.isoformat(), model="other@low",
+                                              prompt_version="v1", evidence=[], verdict="BEARISH"))
+    assert (a["attempt"], b["attempt"]) == (1, 1) and b["prev_hash"] == a["entry_hash"]
+    assert verify_chain(conn) == (True, 2, None)
+
+
+def test_one_tracks_successes_do_not_skip_the_other_track(conn):
+    _round(conn, ["INFY", "TCS"], lambda snap, b: FakeResult(FakeBrief()))
+    out = run_round(conn, SESSION, ["INFY", "TCS"], now=lambda: NOW, snapshot_fn=lambda s, d: FakeSnap(),
+                    generate_fn=lambda snap, b: FakeResult(FakeBrief("BEARISH")), model="other@low",
+                    prompt_version="v1")
+    assert (out["attempted"], out["ok"]) == (2, 2)
+
+
+def test_migration_to_the_track_key_keeps_every_row_and_the_head(tmp_path):
+    c = store.connect(tmp_path / "old.sqlite")
+    c.executescript(ledger._SCHEMA.replace("UNIQUE (session_date, symbol, model, prompt_version, attempt)",
+                                           ledger._OLD_UNIQUE))
+    rid = start_round(c, SESSION, NOW.isoformat(), "m", "v1")
+    for sym in ("INFY", "TCS", "ITC"):
+        append(c, rid, SESSION, _pred(sym, verdict="NEUTRAL"))
+    before = [tuple(r) for r in c.execute("SELECT seq, entry_hash FROM predictions ORDER BY seq")]
+    head = ledger.head_hash(c)
+
+    ensure_schema(c)                                                  # migrates
+
+    sql = c.execute("SELECT sql FROM sqlite_master WHERE name = 'predictions'").fetchone()[0]
+    assert ledger._OLD_UNIQUE not in sql and "model, prompt_version, attempt" in sql
+    assert [tuple(r) for r in c.execute("SELECT seq, entry_hash FROM predictions ORDER BY seq")] == before
+    assert ledger.head_hash(c) == head and verify_chain(c) == (True, 3, None)
+    with pytest.raises(sqlite3.IntegrityError, match="append-only"):
+        c.execute("DELETE FROM predictions")
+    ensure_schema(c)                                                  # second call is a no-op
+    assert ledger.head_hash(c) == head

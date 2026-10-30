@@ -33,6 +33,15 @@ from live.ledger import (CHAIN_FILE, ROOT, Prediction, append, append_chain_line
 
 LOG = ROOT / "logs" / "live_predict.log"
 
+# One entry per pre-registered track (README analysis plan, items 6 and 7).
+# `model` is the name stored in the ledger, and it never changes for a track.
+# Pinned here rather than read from .env, so editing an env var can't quietly
+# move a track onto another model.
+TRACKS = (
+    {"provider": "gemini", "model": "gemini-3.1-flash-lite", "api_model": "gemini-3.1-flash-lite"},
+    {"provider": "groq", "model": "openai/gpt-oss-120b@low", "api_model": "openai/gpt-oss-120b"},
+)
+
 
 def latest_session() -> date | None:
     """The date of the latest ^NSEI daily row: the NSE calendar, by construction."""
@@ -49,7 +58,7 @@ def run_round(conn, session: date, symbols, now, snapshot_fn, generate_fn, model
     from llm.client import DailyQuotaExhausted
 
     round_id = start_round(conn, session, now().isoformat(timespec="seconds"), model, prompt_version)
-    todo = [s for s in symbols if s not in done_symbols(conn, session)]
+    todo = [s for s in symbols if s not in done_symbols(conn, session, model, prompt_version)]
     ok = failed = 0
     quota_hit = None
 
@@ -73,7 +82,7 @@ def run_round(conn, session: date, symbols, now, snapshot_fn, generate_fn, model
         append(conn, round_id, session, p)
         ok, failed = (ok + 1, failed) if p.error is None else (ok, failed + 1)
 
-    complete = not quota_hit and len(done_symbols(conn, session)) == len(symbols)
+    complete = not quota_hit and len(done_symbols(conn, session, model, prompt_version)) == len(symbols)
     state = "ok" if complete else ("failed" if ok == 0 and todo else "partial")
     if not todo:
         state = "ok"
@@ -181,32 +190,50 @@ def main(argv: list[str] | None = None) -> int:
               "(holiday, weekend, or today's close not posted yet)")
         return 1
 
-    model = settings.llm_model
-    summary = run_round(
-        conn, session, list(NSE_NAMES), now=lambda: datetime.now(timezone.utc),
-        snapshot_fn=lambda sym, s: get_market_snapshot(sym, as_of=s),
-        generate_fn=lambda snap, bundle: generate_brief(snap, bundle, prompt_version=DEFAULT_VERSION, model=model),
-        model=model, prompt_version=DEFAULT_VERSION)
+    # Both tracks read the identical snapshot per stock, so a difference
+    # between them is the model's, not the data's.
+    snaps: dict = {}
+
+    def snapshot(sym, s):
+        if sym not in snaps:
+            snaps[sym] = get_market_snapshot(sym, as_of=s)
+        return snaps[sym]
+
+    results = []
+    for t in TRACKS:
+        if t["provider"] == "groq" and settings.reasoning_effort != "low":
+            results.append((t, {"state": "failed", "attempted": 0, "ok": 0, "failed": 0,
+                                "quota": "REASONING_EFFORT must be 'low' for this track"}))
+            continue
+        results.append((t, run_round(
+            conn, session, list(NSE_NAMES), now=lambda: datetime.now(timezone.utc), snapshot_fn=snapshot,
+            generate_fn=lambda snap, bundle, t=t: generate_brief(snap, bundle, prompt_version=DEFAULT_VERSION,
+                                                                  model=t["api_model"], provider=t["provider"]),
+            model=t["model"], prompt_version=DEFAULT_VERSION)))
     flush_traces()
 
+    states = {r["state"] for _, r in results}
+    state = "ok" if states == {"ok"} else ("failed" if states == {"failed"} else "partial")
+    head = head_hash(conn)
     total = conn.execute("SELECT COUNT(*) FROM predictions").fetchone()[0]
     stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    append_chain_line(CHAIN_FILE, session, summary["state"], total, summary["head"], stamp)
-    witness = "skipped (--no-commit)" if args.no_commit else commit_chain(session, summary["state"], summary["head"])
+    append_chain_line(CHAIN_FILE, session, state, total, head, stamp)
+    witness = "skipped (--no-commit)" if args.no_commit else commit_chain(session, state, head)
     settled = settle_due(conn)
     site = refresh_site()
 
-    line = (f"{stamp} session={session} state={summary['state']} attempted={summary['attempted']} "
-            f"ok={summary['ok']} failed={summary['failed']} head={summary['head'][:12]} git={witness}"
-            + (f" quota={summary['quota'][:80]!r}" if summary["quota"] else "")
-            + f" settle={settled!r} site={site!r}")
+    tracks = " | ".join(
+        f"{t['model']}: {r['state']} attempted={r['attempted']} ok={r['ok']} failed={r['failed']}"
+        + (f" quota={r['quota'][:80]!r}" if r["quota"] else "") for t, r in results)
+    line = (f"{stamp} session={session} state={state} [{tracks}] head={head[:12]} git={witness}"
+            f" settle={settled!r} site={site!r}")
     LOG.parent.mkdir(exist_ok=True)
     with LOG.open("a", encoding="utf-8") as f:
         f.write(line + "\n")
     print(line)
-    if summary["quota"]:
+    if any(r["quota"] for _, r in results):
         return 3
-    return 0 if summary["state"] == "ok" else 2
+    return 0 if state == "ok" else 2
 
 
 if __name__ == "__main__":

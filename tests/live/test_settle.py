@@ -142,3 +142,17 @@ def test_v1_replayed_through_m4_gives_the_published_result():
     rep = summarise("v1", rows, [c.isoformat() for c in cutoffs])
     assert (rep["primary"]["dates"], rep["primary"]["mean_rank_correlation"],
             rep["primary"]["rank_correlation_t"]) == (90, -0.0153, -0.65)
+
+
+def test_each_track_is_settled_and_analysed_on_its_own(conn):
+    first = next(d for d in CAL if d >= date(2026, 11, 18))
+    _call(conn, first, CALLS)                                                    # model "m"
+    made = (datetime.combine(first, datetime.min.time(), timezone.utc) + timedelta(hours=13)).isoformat()
+    rid = start_round(conn, first, made, "other@low", "v1")
+    for sym, v in {"INFY": "BEARISH", "TCS": "BULLISH", "ITC": "NEUTRAL"}.items():   # perfectly wrong
+        append(conn, rid, first, Prediction(symbol=sym, made_at=made, model="other@low", prompt_version="v1",
+                                            verdict=v, confidence=3, evidence=[]))
+    assert settle_pending(conn, CAL, outcome_fn=_outcome)["settled"] == 6
+    rep = analyse(conn, CAL)
+    assert rep["m · v1"]["primary"]["mean_rank_correlation"] == 1.0
+    assert rep["other@low · v1"]["primary"]["mean_rank_correlation"] == -1.0

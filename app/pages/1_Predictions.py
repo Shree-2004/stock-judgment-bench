@@ -68,8 +68,8 @@ def witness_heads() -> tuple[set[str], set[str] | None]:
 
 
 st.title("Prediction ledger")
-st.caption("One call per stock per NSE session, made after the close and before the next open, "
-           "from the frozen v1 prompt. Research record only — not advice.")
+st.caption("One call per stock per NSE session from each model, made after the close and before the "
+           "next open, from the frozen v1 prompt. Research record only — not advice.")
 
 if not store.DEFAULT_DB.exists():
     st.info("No store yet.")
@@ -100,9 +100,14 @@ else:
     c3.warning("**Not pushed yet** — the latest head is only on this machine.")
 
 # --- session ---------------------------------------------------------------
+# One track per model (README plan items 6-7), shown separately, never pooled.
+models = list(dict.fromkeys(preds.model))
+model = st.radio("Model", models, horizontal=True) if len(models) > 1 else models[0]
+
 # A rerun appends attempt 2 for a stock whose attempt 1 failed; the call that
 # counts is the latest attempt.
-latest = preds.sort_values("attempt").groupby(["session_date", "symbol"], as_index=False).last()
+latest = (preds[preds.model == model].sort_values("attempt")
+          .groupby(["session_date", "symbol"], as_index=False).last())
 sessions = sorted(latest.session_date.unique(), reverse=True)
 
 m1, m2, m3, m4 = st.columns(4)

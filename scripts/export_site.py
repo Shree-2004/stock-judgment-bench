@@ -64,18 +64,20 @@ def export_ledger(conn) -> dict:
         "SELECT prediction_seq, forward_end, forward_return_pct, excess_return_pct FROM outcomes")} if has_outcomes else {}
 
     # A rerun appends attempt 2 for a stock whose attempt 1 failed; the call
-    # that counts is the latest attempt.
-    latest: dict[tuple[str, str], dict] = {}
+    # that counts is the latest attempt, per track.
+    latest: dict[tuple[str, str, str], dict] = {}
+    tracks: dict[str, dict] = {}                     # insertion order = first row seen
     for r in rows:
-        latest[(r["session_date"], r["symbol"])] = r
+        track = f"{r['model']} · {r['prompt_version']}"
+        tracks.setdefault(track, {"model": r["model"], "prompt_version": r["prompt_version"], "sessions": {}})
+        latest[(track, r["session_date"], r["symbol"])] = r
 
-    sessions: dict[str, dict] = {}
-    for (session, sym), r in sorted(latest.items()):
+    for (track, session, sym), r in sorted(latest.items()):
         brief = (json.loads(r["brief_json"]) if r["brief_json"] else {}).get("brief", {})
         evidence = json.loads(r["evidence_json"] or "[]")
         for e in evidence:
             e["url"] = urls.get(e.get("provider_ref"))
-        sessions.setdefault(session, {})[sym] = {
+        tracks[track]["sessions"].setdefault(session, {})[sym] = {
             "verdict": r["verdict"], "confidence": r["confidence"], "price": r["price"],
             "made_at": r["made_at"], "attempt": r["attempt"], "warmup": bool(r["warmup"]), "error": r["error"],
             "bull_case": brief.get("bull_case"), "bear_case": brief.get("bear_case"),
@@ -88,12 +90,10 @@ def export_ledger(conn) -> dict:
     head = rows[-1]["entry_hash"] if rows else None
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "model": rows[-1]["model"] if rows else None,
-        "prompt_version": rows[-1]["prompt_version"] if rows else None,
         "warmup_end": WARMUP_END.isoformat(),
         "chain": {"ok": ok, "rows": n, "bad_seq": bad, "head": head, **(witness(head) if head else {})},
         "names": NSE_NAMES,
-        "sessions": sessions,
+        "tracks": tracks,
     }
 
 
@@ -125,8 +125,8 @@ def write_site(db: Path = store.DEFAULT_DB, prices: bool = True) -> str:
     OUT.mkdir(parents=True, exist_ok=True)
     ledger = export_ledger(store.connect(db, read_only=True))
     (OUT / "ledger.json").write_text(json.dumps(ledger, ensure_ascii=False), encoding="utf-8")
-    summary = (f"{sum(len(v) for v in ledger['sessions'].values())} calls over {len(ledger['sessions'])} "
-               f"session(s), chain {'OK' if ledger['chain']['ok'] else 'BROKEN'}")
+    summary = (f"{sum(len(c) for t in ledger['tracks'].values() for c in t['sessions'].values())} calls on "
+               f"{len(ledger['tracks'])} track(s), chain {'OK' if ledger['chain']['ok'] else 'BROKEN'}")
     if prices:
         bars = export_prices(list(NSE_NAMES))
         (OUT / "prices.json").write_text(json.dumps(bars), encoding="utf-8")

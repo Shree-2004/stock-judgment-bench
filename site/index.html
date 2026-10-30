@@ -236,7 +236,12 @@ const scoring = (c, sym, d) => {
   return `<span class="num ${o.excess_return >= 0 ? "pos" : "neg"}">${pct(o.excess_return)}</span> <span class="mut">vs Nifty</span>${tick}`;
 };
 
-let L, P, symbols, session, selected, chart, candles, volume, rangeDays = 63;
+let L, P, symbols, track, session, selected, chart, candles, volume, rangeDays = 63;
+// One track per model (README plan items 6-7); tracks are shown and scored
+// separately, never pooled.
+const T = () => L.tracks[track];
+const SS = () => T().sessions;
+const shortModel = m => m.split("/").pop();
 
 function quoteOf(sym) {
   const bars = P[sym] || [];
@@ -245,8 +250,11 @@ function quoteOf(sym) {
 }
 
 function chips() {
-  const days = Object.keys(L.sessions).sort().reverse();
-  const c = L.chain, out = [`<select id="pick" class="picker" aria-label="Session">${
+  const days = Object.keys(SS()).sort().reverse();
+  const c = L.chain, out = [
+    `<select id="track" class="picker" aria-label="Model">${Object.keys(L.tracks).map(k =>
+      `<option value="${esc(k)}"${k === track ? " selected" : ""}>Model ${esc(shortModel(L.tracks[k].model))}</option>`).join("")}</select>`,
+    `<select id="pick" class="picker" aria-label="Session">${
     days.map(d => `<option value="${d}"${d === session ? " selected" : ""}>Session ${dlong(d)}</option>`).join("")}</select>`];
   out.push(c.ok ? `<span class="chip ok">Chain verified · ${c.rows} rows</span>`
                 : `<span class="chip bad">Chain BROKEN at seq ${esc(c.bad_seq)}</span>`);
@@ -255,6 +263,12 @@ function chips() {
          : `<span class="chip">GitHub copy unknown</span>`);
   out.push(`<span class="chip">Research record · not advice</span>`);
   $("#chips").innerHTML = out.join("");
+  $("#pick").onchange = e => { session = e.target.value; list(); side(); insights(); };
+  $("#track").onchange = e => {
+    track = e.target.value;
+    if (!SS()[session]) session = Object.keys(SS()).sort().at(-1);
+    chips(); select(selected);                 // markers, calls and history all change with the track
+  };
 }
 
 function strip() {
@@ -268,7 +282,7 @@ function strip() {
 
 function list() {
   const q = $("#q").value.trim().toLowerCase();
-  const calls = L.sessions[session] || {};
+  const calls = SS()[session] || {};
   $("#list").innerHTML = symbols
     .filter(s => !q || s.toLowerCase().includes(q) || (L.names[s] || "").toLowerCase().includes(q))
     .map(s => {
@@ -291,8 +305,8 @@ function quote() {
 }
 
 function markers() {
-  return Object.keys(L.sessions).sort().flatMap(d => {
-    const c = L.sessions[d][selected];
+  return Object.keys(SS()).sort().flatMap(d => {
+    const c = SS()[d][selected];
     if (!c || !c.verdict) return [];
     const up = c.verdict === "BULLISH", down = c.verdict === "BEARISH";
     return [{time: d, position: down ? "aboveBar" : "belowBar", color: COLORS[c.verdict],
@@ -335,8 +349,8 @@ function setRange() {
 }
 
 function side() {
-  const c = (L.sessions[session] || {})[selected];
-  const calls = Object.values(L.sessions[session] || {});
+  const c = (SS()[session] || {})[selected];
+  const calls = Object.values(SS()[session] || {});
   const n = k => calls.filter(x => x.verdict === k).length, tot = calls.length || 1;
   const ch = L.chain;
   const callCard = !c ? `<div class="mut">No call recorded for ${selected} on this session.</div>` : `
@@ -358,7 +372,7 @@ function side() {
 
   $("#side").innerHTML = `
     <div class="card"><h3>Model's call · ${dlong(session)}</h3>${callCard}</div>
-    <div class="card"><h3>All 41 calls this session</h3>
+    <div class="card"><h3>All ${calls.length} calls · ${esc(shortModel(T().model))}</h3>
       <div class="split">
         <div style="width:${n("BULLISH")/tot*100}%;background:var(--pos)"></div>
         <div style="width:${n("NEUTRAL")/tot*100}%;background:var(--neutral)"></div>
@@ -375,16 +389,16 @@ function side() {
         <div>${ch.pushed ? "Head is in the public GitHub history" : "Head not pushed yet"}<small>origin/master, last fetch</small></div></div>
     </div>
     <div class="card"><h3>About</h3>
-      <p class="fine" style="margin:0 0 8px">Each weekday after the NSE close, one model makes one call per stock from a frozen prompt and the filings this system had seen by then. Calls are appended to a hash-chained ledger and later scored against the next 21 sessions.</p>
-      <dl class="kv"><dt>Model</dt><dd>${esc(L.model)}</dd><dt>Prompt</dt><dd>${esc(L.prompt_version)}</dd>
+      <p class="fine" style="margin:0 0 8px">Each weekday after the NSE close, each model makes one call per stock from the same frozen prompt, the same price snapshot and the filings this system had seen by then. Calls are appended to one hash-chained ledger and later scored against the next 21 sessions. Each model is a separate track, scored on its own.</p>
+      <dl class="kv"><dt>Model</dt><dd>${esc(T().model)}</dd><dt>Prompt</dt><dd>${esc(T().prompt_version)}</dd>
         <dt>Exported</dt><dd>${tIST(L.generated_at)}</dd></dl>
       <p class="fine" style="margin:10px 0 0">Not investment advice. No call here is a recommendation to buy or sell.</p>
     </div>`;
 }
 
 function insights() {
-  const c = (L.sessions[session] || {})[selected];
-  const head = `<div class="sec"><h3>Why the model called it this way</h3><span class="tag">model output · ${esc(L.model)} · not advice</span></div>`;
+  const c = (SS()[session] || {})[selected];
+  const head = `<div class="sec"><h3>Why the model called it this way</h3><span class="tag">model output · ${esc(T().model)} · not advice</span></div>`;
   let body;
   if (!c || !c.verdict) {
     body = `<div class="empty">${c?.error ? "This call failed and was recorded as a failure: " + esc(c.error) : `No call for ${selected} on this session.`}</div>`;
@@ -408,7 +422,7 @@ function insights() {
         </div>`).join("")}</div>`
       : `<div class="empty">No filings for ${selected} in the 21 days before this call. It rests on price data alone.</div>`}`;
   }
-  const rows = Object.keys(L.sessions).sort().reverse().map(d => [d, L.sessions[d][selected]]).filter(([, x]) => x);
+  const rows = Object.keys(SS()).sort().reverse().map(d => [d, SS()[d][selected]]).filter(([, x]) => x);
   const hist = `<div class="sec"><h3>${selected}'s call history</h3><span class="tag">${rows.length} session${rows.length === 1 ? "" : "s"}</span></div>
     <table class="hist"><thead><tr><th>Session</th><th>Call</th><th>Confidence</th><th>Close it read</th><th>Scoring</th></tr></thead><tbody>${
       rows.map(([d, x]) => `<tr class="${d === session ? "cur" : ""}"><td>${dlong(d)}</td>
@@ -434,9 +448,13 @@ async function boot() {
     return;
   }
   symbols = Object.keys(L.names).sort();
-  session = Object.keys(L.sessions).sort().at(-1);
+  track = Object.keys(L.tracks)[0];
+  if (!track) {
+    document.querySelector(".main").innerHTML = `<div class="err">No predictions in the ledger yet.</div>`;
+    return;
+  }
+  session = Object.keys(SS()).sort().at(-1);
   chips(); strip();
-  $("#pick").onchange = e => { session = e.target.value; list(); side(); insights(); };
   $("#q").oninput = list;
   $("#list").onclick = e => { const r = e.target.closest(".row"); if (r) select(r.dataset.s); };
   $("#list").onkeydown = e => { if (e.key === "Enter") { const r = e.target.closest(".row"); if (r) select(r.dataset.s); } };
