@@ -139,7 +139,11 @@ python -m scripts.live_ingest                 # one poll
 python -m scripts.live_ingest --unmatched     # check company-name mapping
 streamlit run app/live_dashboard.py           # read-only view
 powershell -ExecutionPolicy Bypass -File scripts\register_live_task.ps1   # poll every 15 min
+python -m scripts.live_results                # quarterly results, XBRL (also runs nightly)
+python -m scripts.live_results --status       # what is stored, no fetch
 ```
+
+**Quarterly results (fundamentals track, step 1 — collected, not yet shown to any model).** `live/results.py` stores NSE's Integrated Filing (Financials) for the 41 stocks: the raw XBRL, every plain fact in it, and NSE's broadcast time. The table is append-only, and a revision is a new row. The first run, on 2026-10-31, stored 567 filings, about 5–7 quarters per stock. Banks and NBFCs file a different taxonomy (`InterestEarned` rather than `RevenueFromOperations`), so which fact counts as "revenue" is decided in step 2, not at collection time. Some files don't report a three-month quarter at all: Coal India's Sep-2026 file reports only the half year. In that case the quarter is left empty rather than guessed.
 
 **M2 — what kind of filing is it?** Each filing gets one of 15 categories (`live/classify.py`), decided by one question: *what new information does this give a holder?* A newspaper reprint of results is routine compliance, not results.
 

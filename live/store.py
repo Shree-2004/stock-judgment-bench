@@ -11,8 +11,10 @@ so a deleted `live.sqlite` is a permanent hole in the record. It lives outside
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
+import zlib
 from pathlib import Path
 
 from live.filings import FilingRecord
@@ -65,6 +67,36 @@ BEGIN SELECT RAISE(ABORT, 'filings are append-only'); END;
 
 CREATE TRIGGER IF NOT EXISTS filings_no_delete BEFORE DELETE ON filings
 BEGIN SELECT RAISE(ABORT, 'filings are append-only'); END;
+
+-- Quarterly results (live/results.py). One row per XBRL file; a revision is a
+-- new row, never an edit of the original.
+CREATE TABLE IF NOT EXISTS results (
+    id              INTEGER PRIMARY KEY,
+    provider        TEXT NOT NULL,
+    provider_ref    TEXT NOT NULL,          -- the XBRL URL
+    symbol          TEXT NOT NULL,
+    seq_id          TEXT,
+    kind            TEXT NOT NULL,          -- Original / Revision
+    statement       TEXT NOT NULL CHECK (statement IN ('Consolidated', 'Standalone')),
+    quarter_end     TEXT NOT NULL,
+    published_at    TEXT NOT NULL,
+    published_raw   TEXT NOT NULL,
+    first_seen_at   TEXT NOT NULL,
+    job_id          INTEGER NOT NULL REFERENCES job_runs (id),
+    facts_json      TEXT NOT NULL,
+    raw_sha256      TEXT NOT NULL,
+    raw_xbrl        BLOB NOT NULL,          -- zlib-compressed, exactly as downloaded
+    UNIQUE (provider, provider_ref)
+);
+
+CREATE INDEX IF NOT EXISTS ix_results_symbol_published
+    ON results (symbol, published_at);
+
+CREATE TRIGGER IF NOT EXISTS results_no_update BEFORE UPDATE ON results
+BEGIN SELECT RAISE(ABORT, 'results are append-only'); END;
+
+CREATE TRIGGER IF NOT EXISTS results_no_delete BEFORE DELETE ON results
+BEGIN SELECT RAISE(ABORT, 'results are append-only'); END;
 """
 
 
@@ -119,6 +151,26 @@ def insert_filings(
             )
             inserted += cur.rowcount
     return inserted
+
+
+def insert_result(conn: sqlite3.Connection, item, parsed: dict, raw: bytes, first_seen_at: str,
+                  job_id: int) -> int:
+    """`item` is a live.results.Listing. Returns 1 if new, 0 if already stored
+    (left exactly as it was)."""
+    from live.results import PROVIDER
+    with conn:
+        cur = conn.execute(
+            """INSERT INTO results (provider, provider_ref, symbol, seq_id, kind, statement, quarter_end,
+                                    published_at, published_raw, first_seen_at, job_id,
+                                    facts_json, raw_sha256, raw_xbrl)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT (provider, provider_ref) DO NOTHING""",
+            (PROVIDER, item.xbrl_url, item.symbol, item.seq_id, item.kind, item.statement, item.quarter_end,
+             item.published_at, item.published_raw, first_seen_at, job_id,
+             json.dumps(parsed, ensure_ascii=False, sort_keys=True), hashlib.sha256(raw).hexdigest(),
+             zlib.compress(raw, 9)),
+        )
+    return cur.rowcount
 
 
 def newest_published(conn: sqlite3.Connection, provider: str) -> str | None:

@@ -135,6 +135,15 @@ def settle_due(conn) -> str:
     return _soft(step)
 
 
+def collect_results() -> str:
+    """Fundamentals track, step 1: store any new quarterly results. Runs after
+    the round, so tonight's calls never wait on it, and nothing reads it yet."""
+    def step():
+        from live.results import run_once, summary
+        return summary(run_once(list(NSE_NAMES)))
+    return _soft(step)
+
+
 def cmd_status(conn) -> int:
     rounds = conn.execute("SELECT session_date, state, n_ok, n_failed, head_hash FROM ledger_rounds "
                           "ORDER BY id DESC LIMIT 10").fetchall()
@@ -220,13 +229,14 @@ def main(argv: list[str] | None = None) -> int:
     append_chain_line(CHAIN_FILE, session, state, total, head, stamp)
     witness = "skipped (--no-commit)" if args.no_commit else commit_chain(session, state, head)
     settled = settle_due(conn)
+    collected = collect_results()
     site = refresh_site()
 
     tracks = " | ".join(
         f"{t['model']}: {r['state']} attempted={r['attempted']} ok={r['ok']} failed={r['failed']}"
         + (f" quota={r['quota'][:80]!r}" if r["quota"] else "") for t, r in results)
     line = (f"{stamp} session={session} state={state} [{tracks}] head={head[:12]} git={witness}"
-            f" settle={settled!r} site={site!r}")
+            f" settle={settled!r} results={collected!r} site={site!r}")
     LOG.parent.mkdir(exist_ok=True)
     with LOG.open("a", encoding="utf-8") as f:
         f.write(line + "\n")
