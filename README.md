@@ -234,6 +234,18 @@ python -m scripts.label_filings score     # after filling labels/<rules-version>
    - one shared hash chain
 
    Its first round is 2026-10-30. It is analysed exactly like the first track (items 1–5) and reported beside it. The comparison between tracks is the **paired** difference in per-session rank correlation over primary sessions both tracks have. That comparison is exploratory: at about 12 primary sessions a year it is underpowered for longer than either track alone. v1 has 671 gpt-oss briefs on a subset of windows, so this track has only a partial in-sample reference, which is reported as such.
+8. *Fundamentals tracks (added 2026-11-02, before any v2 call and before any outcome exists).* The question: **does giving the model the company's latest quarterly results change how well its calls rank?** Two new tracks use prompt `v2_fundamentals`, one per model, so each model is compared only with itself. `v2_fundamentals` is `v1_structured` plus one block, *QUARTERLY RESULTS*, built by `live/fundamentals.py` from the `results` table:
+   - **Point in time:** a filing counts only if NSE published it at or before the call's `made_at`, and only if the collector had stored it by then. A revision counts from its own publication time and never earlier.
+   - **Contents:** the latest quarter's revenue (or *interest earned* for banks, labelled as such), net profit and basic EPS, plus year-on-year growth, four-quarter EPS and P/E on that evening's close. Each is shown only when its inputs exist: there's no growth off a loss, no P/E on negative EPS, and no four-quarter EPS across a gap. The block states the quarter, the publication date and how many days old it is.
+   - **One statement series:** consolidated unless the standalone series is more recent, and the two are never mixed.
+   - **Quarters filed only as year-to-date** (Coal India, Sep 2026) are derived by subtracting two filed figures and marked as derived. Otherwise they're left out.
+   - The block's figures join *MARKET DATA* under the same contract: a cited figure must be copied with its exact label, and L1 checks it mechanically.
+
+   Everything else matches the v1 tracks: the same price snapshot, filings, evidence rule, 41 stocks, outcome, warm-up end (2026-11-18), exclusions and hash chain. The block that was shown is stored with every call.
+
+   **The comparison** is, per model, the paired difference in per-session rank correlation, `v2_fundamentals` minus `v1_structured`, over primary sessions both tracks have, reported with its interval **whatever its sign**. It isn't pooled across models. No direction is predicted, and like item 7 it's exploratory at about 12 primary sessions a year.
+
+   **The block is frozen at its first v2 call.** Any later change, even a fixed bug, makes a new prompt version and a new track, never an edit of this one.
 
 **M4 — settlement** (`live/settle.py`, built before any call was due). Each evening after the round, every call whose 21-session window has closed is settled once into an append-only `outcomes` table. Settlement uses v1's `get_outcome` and `score_l3` unchanged. A test replays v1's cached briefs through M4's summariser and gets v1's published −0.0153 / t −0.65. Two details the plan didn't spell out were fixed before any outcome existed:
 - a scheduled primary session the ledger doesn't have (the machine was off) is reported as **missing**, never replaced by a neighbouring session
