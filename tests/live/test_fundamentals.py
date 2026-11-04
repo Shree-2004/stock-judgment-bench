@@ -70,6 +70,16 @@ def test_results_published_after_the_call_are_invisible(conn):
     assert (before.latest.label, after.latest.label) == ("Q1 FY27", "Q2 FY27")
 
 
+def test_a_filing_counts_only_once_this_store_had_collected_it(conn):
+    item = Listing("X", "https://x/late", None, "Original", "Consolidated", "2026-09-30",
+                   "2026-10-28T10:00:00+00:00", "28-Oct-2026 15:30:00")
+    store.insert_result(conn, item, {"periods": {"OneD": {"start": "2026-07-01", "end": "2026-09-30"}},
+                                     "facts": {"OneD": {"ProfitLossForPeriod": "1"}}}, b"x",
+                        "2026-10-31T08:00:00+00:00", JOB)                 # backfilled three days late
+    assert load(conn, "X", "2026-10-30T13:00:00+00:00").latest is None
+    assert load(conn, "X", "2026-11-02T13:00:00+00:00").latest.end == date(2026, 9, 30)
+
+
 def test_a_revision_counts_only_from_its_own_publication(conn):
     _file(conn, "X", "2026-06-30", "2026-08-05T10:00:00+00:00", _co(120, 12, 3.0))
     _file(conn, "X", "2026-06-30", "2026-09-01T10:00:00+00:00", _co(120, 9, 2.0), kind="Revision")
@@ -84,23 +94,23 @@ def test_four_quarter_eps_pe_and_growth(conn):
     f = load(conn, "HERO", "2026-11-02T13:00:00+00:00", close=330.0)
     figs = f.figures()
     assert figs == {
-        "Revenue from operations, latest quarter (Rs cr)": 130.0,
-        "Net profit, latest quarter (Rs cr)": 13.0,
-        "EPS, latest quarter (Rs)": 3.5,
-        "Revenue from operations growth YoY (%)": 30.0,
-        "Net profit growth YoY (%)": 30.0,
-        "EPS, last 4 quarters (Rs)": 11.0,
-        "P/E on last 4 quarters' EPS": 30.0,
+        "revenue_from_operations_q_cr": 130.0,
+        "net_profit_q_cr": 13.0,
+        "eps_q": 3.5,
+        "revenue_from_operations_yoy_pct": 30.0,
+        "net_profit_yoy_pct": 30.0,
+        "eps_4q": 11.0,
+        "pe_4q": 30.0,
     }
     block = f.as_prompt_block(date(2026, 11, 2))
     assert block.startswith("Latest results: Q2 FY27 (quarter ended 30 Sep 2026), consolidated, published 28 Oct 2026")
-    assert "- P/E on last 4 quarters' EPS: 30.00" in block
+    assert "- pe_4q: 30.00" in block and "pe_4q = price / eps_4q" in block
 
 
 def test_no_year_ago_quarter_means_no_growth_and_the_block_says_so(conn):
     _file(conn, "X", "2026-09-30", "2026-10-28T10:00:00+00:00", _co(130, 13, 3.5))
     f = load(conn, "X", "2026-11-02T00:00:00+00:00", close=100)
-    assert not any("growth" in k or "4 quarters" in k or "P/E" in k for k in f.figures())
+    assert not any(k.endswith(("_yoy_pct", "_4q")) for k in f.figures())
     assert "not available, so no year-on-year figures" in f.as_prompt_block(date(2026, 11, 2))
 
 
@@ -111,8 +121,8 @@ def test_growth_off_a_loss_and_pe_on_negative_eps_are_left_out(conn):
     _file(conn, "X", "2026-06-30", "2026-07-28T10:00:00+00:00", _co(100, -5, -1.0))
     _file(conn, "X", "2026-09-30", "2026-10-28T10:00:00+00:00", _co(120, 3, 0.5))
     figs = load(conn, "X", "2026-11-02T00:00:00+00:00", close=100).figures()
-    assert "Net profit growth YoY (%)" not in figs and "P/E on last 4 quarters' EPS" not in figs
-    assert figs["Revenue from operations growth YoY (%)"] == 20.0
+    assert "net_profit_yoy_pct" not in figs and "pe_4q" not in figs
+    assert figs["revenue_from_operations_yoy_pct"] == 20.0
 
 
 def test_a_gap_in_the_last_four_quarters_means_no_four_quarter_eps(conn):
@@ -125,11 +135,12 @@ def test_a_gap_in_the_last_four_quarters_means_no_four_quarter_eps(conn):
 def test_a_bank_is_labelled_by_what_it_files(conn):
     store.insert_result(conn, Listing("HDFCBANK", "https://x/hdfc", None, "Original", "Consolidated", "2026-09-30",
                                       "2026-10-17T12:17:00+00:00", "17-Oct-2026 17:47:13"),
-                        parse_xbrl((FIX / "results_hdfcbank_q2fy27.xml").read_bytes()), b"x", "now", JOB)
+                        parse_xbrl((FIX / "results_hdfcbank_q2fy27.xml").read_bytes()), b"x",
+                        "2026-10-31T08:00:00+00:00", JOB)
     figs = load(conn, "HDFCBANK", "2026-11-02T00:00:00+00:00").figures()
-    assert figs["Interest earned, latest quarter (Rs cr)"] == 95131.63
-    assert figs["Net profit, latest quarter (Rs cr)"] == 20700.03
-    assert not any(k.startswith("Revenue") for k in figs)
+    assert figs["interest_earned_q_cr"] == 95131.63
+    assert figs["net_profit_q_cr"] == 20700.03
+    assert not any(k.startswith("revenue") for k in figs)
 
 
 def test_a_half_year_only_filing_is_derived_from_two_filed_figures(conn):

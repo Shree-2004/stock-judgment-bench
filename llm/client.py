@@ -31,7 +31,7 @@ import requests
 from config import settings
 from evals.number_check import check_numbers
 from llm.brief import Brief, parse_brief
-from llm.prompts import DEFAULT_VERSION, build_prompt
+from llm.prompts import DEFAULT_VERSION, build_prompt, render_fundamentals_block
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GEMINI_URL = ("https://generativelanguage.googleapis.com/v1beta/models/"
@@ -224,9 +224,10 @@ class BriefResult:
     usage: dict = field(default_factory=dict)
     latency_s: float = 0.0
     trace_id: str | None = None
+    fundamentals: dict | None = None    # the results block shown (v2_fundamentals only)
 
     def as_dict(self) -> dict:
-        return {
+        out = {
             "ticker": self.ticker,
             "cutoff": self.cutoff,
             "prompt_version": self.prompt_version,
@@ -237,6 +238,9 @@ class BriefResult:
             "latency_s": round(self.latency_s, 2),
             "trace_id": self.trace_id,
         }
+        if self.fundamentals is not None:   # v1 rows keep their exact shape
+            out["fundamentals"] = self.fundamentals
+        return out
 
 
 # ---------------------------------------------------------------------------
@@ -496,11 +500,28 @@ def generate_brief(
     model: str | None = None,
     trace: bool = True,
     provider: str | None = None,
+    fundamentals=None,
 ) -> BriefResult:
-    """Build the prompt, call the model, parse, score L1, trace the lot."""
-    prompt, user_message = build_prompt(snapshot, disclosures, prompt_version)
+    """Build the prompt, call the model, parse, score L1, trace the lot.
+
+    With `fundamentals` (v2_fundamentals), its labelled figures join the L1
+    truth, so a quoted result is checked exactly like a quoted price."""
+    prompt, user_message = build_prompt(snapshot, disclosures, prompt_version, fundamentals)
     model = model or settings.llm_model
     truth = snapshot.figures()
+    shown = None
+    if fundamentals is not None:
+        extra = fundamentals.figures()
+        if extra.keys() & truth.keys():
+            raise ValueError(f"fundamentals labels collide with market data: {sorted(extra.keys() & truth.keys())}")
+        truth = {**truth, **extra}
+        latest = fundamentals.latest
+        shown = {"statement": fundamentals.statement,
+                 "quarter_end": latest.end.isoformat() if latest else None,
+                 "published_at": latest.published_at if latest else None,
+                 "derived": latest.derived if latest else None,
+                 "block": render_fundamentals_block(fundamentals, snapshot.as_of),
+                 "figures": extra}
 
     client = get_langfuse() if trace else None
     span_cm = (
@@ -512,6 +533,7 @@ def generate_brief(
                 "as_of": snapshot.as_of,
                 "figures": truth,
                 "disclosures": disclosures.as_prompt_block(),
+                **({"fundamentals": shown["block"]} if shown else {}),
             },
             metadata={
                 "prompt_version": prompt.version,
@@ -587,4 +609,5 @@ def generate_brief(
         usage=usage,
         latency_s=latency,
         trace_id=trace_id,
+        fundamentals=shown,
     )

@@ -272,3 +272,41 @@ def test_migration_to_the_track_key_keeps_every_row_and_the_head(tmp_path):
         c.execute("DELETE FROM predictions")
     ensure_schema(c)                                                  # second call is a no-op
     assert ledger.head_hash(c) == head
+
+
+# ---------------------------------------------------------------------------
+# fundamentals tracks (step 3)
+# ---------------------------------------------------------------------------
+
+def test_fundamentals_tracks_wait_for_their_start_date():
+    from scripts.live_predict import TRACKS, live_tracks
+    assert [(t["model"], t["prompt_version"]) for t in live_tracks(SESSION)] == \
+        [(t["model"], "v1_structured") for t in TRACKS[:2]]
+    started = [dict(t, **{"from": date(2026, 11, 5)}) if "from" in t else t for t in TRACKS]
+    assert len(live_tracks(date(2026, 11, 4), started)) == 2
+    assert [t["prompt_version"] for t in live_tracks(date(2026, 11, 5), started)] == \
+        ["v1_structured", "v1_structured", "v2_fundamentals", "v2_fundamentals"]
+
+
+def test_v1_tracks_run_before_fundamentals_tracks():
+    from scripts.live_predict import TRACKS
+    versions = [t["prompt_version"] for t in TRACKS]
+    assert versions == sorted(versions, key=lambda v: v != "v1_structured")
+
+
+def test_the_results_block_is_loaded_as_of_the_moment_of_the_call(conn):
+    seen = []
+    out = run_round(conn, SESSION, ["HEROMOTOCO"], now=lambda: NOW, snapshot_fn=lambda s, d: FakeSnap(),
+                    generate_fn=lambda snap, b, f: seen.append(f) or FakeResult(FakeBrief()),
+                    model="m", prompt_version="v2_fundamentals",
+                    fundamentals_fn=lambda sym, made_at, snap: (sym, made_at, snap.price))
+    assert out["ok"] == 1 and seen == [("HEROMOTOCO", NOW.isoformat(timespec="seconds"), 100.0)]
+
+
+def test_a_fundamentals_failure_is_a_recorded_row(conn):
+    def broken(sym, made_at, snap):
+        raise KeyError("facts")
+    out = run_round(conn, SESSION, ["INFY"], now=lambda: NOW, snapshot_fn=lambda s, d: FakeSnap(),
+                    generate_fn=lambda snap, b, f: FakeResult(FakeBrief()), model="m",
+                    prompt_version="v2_fundamentals", fundamentals_fn=broken)
+    assert out["failed"] == 1 and "KeyError" in conn.execute("SELECT error FROM predictions").fetchone()[0]

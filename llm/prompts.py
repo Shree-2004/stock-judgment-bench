@@ -20,6 +20,7 @@ footnote.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,7 @@ class Prompt:
     version: str
     system: str
     template: str
+    needs_fundamentals: bool = False
 
     def render(self, **kwargs) -> str:
         return self.template.format(**kwargs)
@@ -98,7 +100,26 @@ clear view on the next 21 trading days. Write naturally.
 """,
 )
 
-PROMPTS: dict[str, Prompt] = {p.version: p for p in (V1_STRUCTURED, V2_PROSE)}
+# Fundamentals track (README plan item 8): v1 word for word, plus the quarterly
+# results NSE had published before the call (live/fundamentals.py). The one
+# contract change is that KEY_FIGURES may also be copied from that block, whose
+# labels are checked by L1 exactly like MARKET DATA's. Frozen at its first call.
+_CONTRACT_FUNDAMENTALS = _CONTRACT.replace(
+    "copied from MARKET DATA, using the\n  exact label shown there.",
+    "copied from MARKET DATA or QUARTERLY\n  RESULTS, using the exact label shown there.")
+assert _CONTRACT_FUNDAMENTALS != _CONTRACT
+
+V2_FUNDAMENTALS = Prompt(
+    version="v2_fundamentals",
+    system=V1_STRUCTURED.system,
+    template=V1_STRUCTURED.template.replace(
+        "DISCLOSURES filed",
+        "QUARTERLY RESULTS filed with NSE before {as_of} (Rs cr = crore rupees):\n"
+        "{fundamentals_block}\n\nDISCLOSURES filed"),
+    needs_fundamentals=True,
+)
+
+PROMPTS: dict[str, Prompt] = {p.version: p for p in (V1_STRUCTURED, V2_PROSE, V2_FUNDAMENTALS)}
 DEFAULT_VERSION = V1_STRUCTURED.version
 
 
@@ -124,9 +145,15 @@ def build_prompt(
     snapshot,
     disclosures,
     version: str = DEFAULT_VERSION,
+    fundamentals=None,
 ) -> tuple[Prompt, str]:
-    """Returns (prompt, rendered_user_message)."""
+    """Returns (prompt, rendered_user_message). `fundamentals` is a
+    live.fundamentals.Fundamentals, required by v2_fundamentals and refused by
+    every other version, so a track can't quietly gain or lose the block."""
     prompt = get(version)
+    if prompt.needs_fundamentals != (fundamentals is not None):
+        raise ValueError(f"{version} {'needs' if prompt.needs_fundamentals else 'takes no'} fundamentals")
+    contract = _CONTRACT_FUNDAMENTALS if prompt.needs_fundamentals else _CONTRACT
     rendered = prompt.render(
         company=snapshot.company_name or snapshot.ticker,
         ticker=snapshot.ticker,
@@ -134,6 +161,13 @@ def build_prompt(
         currency=snapshot.currency,
         figures_block=render_figures_block(snapshot.figures()),
         disclosures_block=disclosures.as_prompt_block(),
-        contract=_CONTRACT,
+        fundamentals_block=render_fundamentals_block(fundamentals, snapshot.as_of),
+        contract=contract,
     )
     return prompt, rendered
+
+
+def render_fundamentals_block(fundamentals, as_of: str) -> str:
+    if fundamentals is None:
+        return ""
+    return fundamentals.as_prompt_block(date.fromisoformat(str(as_of)[:10]))

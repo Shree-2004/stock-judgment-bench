@@ -11,9 +11,11 @@ and before the next open. A rerun the same evening fills in stocks that failed
 or were cut off by the provider's daily quota. It never touches a stock that
 already succeeded.
 
+Before the round it stores any new quarterly results (live.results), so the
+fundamentals tracks see a filing on the first evening after NSE publishes it.
 After the commit it settles calls whose 21-session window has closed (M4,
-scripts.settle) and rebuilds site/data (scripts.export_site). Either step can
-fail without affecting the round or the exit code.
+scripts.settle) and rebuilds site/data (scripts.export_site). None of these
+steps can affect the round or the exit code.
 
 Exit codes: 0 round complete · 1 nothing to do (holiday / prices not posted) ·
 2 round partial or failed · 3 provider quota exhausted (rerun later).
@@ -33,14 +35,27 @@ from live.ledger import (CHAIN_FILE, ROOT, Prediction, append, append_chain_line
 
 LOG = ROOT / "logs" / "live_predict.log"
 
-# One entry per pre-registered track (README analysis plan, items 6 and 7).
-# `model` is the name stored in the ledger, and it never changes for a track.
-# Pinned here rather than read from .env, so editing an env var can't quietly
-# move a track onto another model.
+# One entry per pre-registered track (README analysis plan, items 6-8).
+# `model` and `prompt_version` are what the ledger stores, and they never change
+# for a track. Pinned here rather than read from .env, so editing an env var
+# can't quietly move a track onto another model.
+# A track with `from` runs only on sessions on or after that date; `from: None`
+# means not started. The v1 tracks come first, so if a provider's daily quota
+# runs out it is a fundamentals track that comes up short, never v1.
 TRACKS = (
-    {"provider": "gemini", "model": "gemini-3.1-flash-lite", "api_model": "gemini-3.1-flash-lite"},
-    {"provider": "groq", "model": "openai/gpt-oss-120b@low", "api_model": "openai/gpt-oss-120b"},
+    {"provider": "gemini", "model": "gemini-3.1-flash-lite", "api_model": "gemini-3.1-flash-lite",
+     "prompt_version": "v1_structured"},
+    {"provider": "groq", "model": "openai/gpt-oss-120b@low", "api_model": "openai/gpt-oss-120b",
+     "prompt_version": "v1_structured"},
+    {"provider": "gemini", "model": "gemini-3.1-flash-lite", "api_model": "gemini-3.1-flash-lite",
+     "prompt_version": "v2_fundamentals", "from": None},
+    {"provider": "groq", "model": "openai/gpt-oss-120b@low", "api_model": "openai/gpt-oss-120b",
+     "prompt_version": "v2_fundamentals", "from": None},
 )
+
+
+def live_tracks(session: date, tracks=TRACKS) -> list[dict]:
+    return [t for t in tracks if "from" not in t or (t["from"] is not None and session >= t["from"])]
 
 
 def latest_session() -> date | None:
@@ -53,8 +68,11 @@ def latest_session() -> date | None:
 
 
 def run_round(conn, session: date, symbols, now, snapshot_fn, generate_fn, model: str,
-              prompt_version: str) -> dict:
-    """One pass over the stocks still missing a successful prediction for `session`."""
+              prompt_version: str, fundamentals_fn=None) -> dict:
+    """One pass over the stocks still missing a successful prediction for `session`.
+
+    With `fundamentals_fn(symbol, made_at, snapshot)`, its result is passed to
+    `generate_fn` as a third argument: the results block as of `made_at`."""
     from llm.client import DailyQuotaExhausted
 
     round_id = start_round(conn, session, now().isoformat(timespec="seconds"), model, prompt_version)
@@ -69,7 +87,8 @@ def run_round(conn, session: date, symbols, now, snapshot_fn, generate_fn, model
         try:
             snap = snapshot_fn(sym, session)
             p.price, p.snapshot = snap.price, snap.as_dict()
-            result = generate_fn(snap, bundle)
+            result = (generate_fn(snap, bundle) if fundamentals_fn is None
+                      else generate_fn(snap, bundle, fundamentals_fn(sym, made_at, snap)))
             p.brief, p.raw_text = result.as_dict(), result.raw_text
             p.verdict, p.confidence = result.brief.verdict, result.brief.confidence
             if not result.brief.parsed:
@@ -135,12 +154,13 @@ def settle_due(conn) -> str:
     return _soft(step)
 
 
-def collect_results() -> str:
-    """Fundamentals track, step 1: store any new quarterly results. Runs after
-    the round, so tonight's calls never wait on it, and nothing reads it yet."""
+def collect_results(db: Path = store.DEFAULT_DB) -> str:
+    """Store any new quarterly results before the round. A failure costs the
+    fundamentals tracks one night's freshness, nothing more: they read what
+    is already stored, point in time."""
     def step():
         from live.results import run_once, summary
-        return summary(run_once(list(NSE_NAMES)))
+        return summary(run_once(list(NSE_NAMES), db))
     return _soft(step)
 
 
@@ -190,7 +210,7 @@ def main(argv: list[str] | None = None) -> int:
     from config import settings
     from data.market_data import get_market_snapshot
     from llm.client import flush_traces, generate_brief
-    from llm.prompts import DEFAULT_VERSION
+    from live.fundamentals import load as load_fundamentals
 
     today = datetime.now(IST).date()
     session = latest_session()
@@ -208,17 +228,24 @@ def main(argv: list[str] | None = None) -> int:
             snaps[sym] = get_market_snapshot(sym, as_of=s)
         return snaps[sym]
 
+    collected = collect_results(args.db)
+
     results = []
-    for t in TRACKS:
+    for t in live_tracks(session):
         if t["provider"] == "groq" and settings.reasoning_effort != "low":
             results.append((t, {"state": "failed", "attempted": 0, "ok": 0, "failed": 0,
                                 "quota": "REASONING_EFFORT must be 'low' for this track"}))
             continue
+        fundamentals_fn = None
+        if t["prompt_version"] == "v2_fundamentals":
+            def fundamentals_fn(sym, made_at, snap):
+                return load_fundamentals(conn, sym, made_at, close=snap.price)
         results.append((t, run_round(
             conn, session, list(NSE_NAMES), now=lambda: datetime.now(timezone.utc), snapshot_fn=snapshot,
-            generate_fn=lambda snap, bundle, t=t: generate_brief(snap, bundle, prompt_version=DEFAULT_VERSION,
-                                                                  model=t["api_model"], provider=t["provider"]),
-            model=t["model"], prompt_version=DEFAULT_VERSION)))
+            generate_fn=lambda snap, bundle, fundamentals=None, t=t: generate_brief(
+                snap, bundle, prompt_version=t["prompt_version"], model=t["api_model"],
+                provider=t["provider"], fundamentals=fundamentals),
+            model=t["model"], prompt_version=t["prompt_version"], fundamentals_fn=fundamentals_fn)))
     flush_traces()
 
     states = {r["state"] for _, r in results}
@@ -229,11 +256,10 @@ def main(argv: list[str] | None = None) -> int:
     append_chain_line(CHAIN_FILE, session, state, total, head, stamp)
     witness = "skipped (--no-commit)" if args.no_commit else commit_chain(session, state, head)
     settled = settle_due(conn)
-    collected = collect_results()
     site = refresh_site()
 
     tracks = " | ".join(
-        f"{t['model']}: {r['state']} attempted={r['attempted']} ok={r['ok']} failed={r['failed']}"
+        f"{t['model']}{'' if t['prompt_version'] == 'v1_structured' else ' ' + t['prompt_version']}: {r['state']} attempted={r['attempted']} ok={r['ok']} failed={r['failed']}"
         + (f" quota={r['quota'][:80]!r}" if r["quota"] else "") for t, r in results)
     line = (f"{stamp} session={session} state={state} [{tracks}] head={head[:12]} git={witness}"
             f" settle={settled!r} results={collected!r} site={site!r}")

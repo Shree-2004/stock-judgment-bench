@@ -143,7 +143,7 @@ python -m scripts.live_results                # quarterly results, XBRL (also ru
 python -m scripts.live_results --status       # what is stored, no fetch
 ```
 
-**Quarterly results (fundamentals track, step 1 — collected, not yet shown to any model).** `live/results.py` stores NSE's Integrated Filing (Financials) for the 41 stocks: the raw XBRL, every plain fact in it, and NSE's broadcast time. The table is append-only, and a revision is a new row. The first run, on 2026-10-31, stored 567 filings, about 5–7 quarters per stock. Banks and NBFCs file a different taxonomy (`InterestEarned` rather than `RevenueFromOperations`), so which fact counts as "revenue" is decided in step 2, not at collection time. Some files don't report a three-month quarter at all: Coal India's Sep-2026 file reports only the half year. In that case the quarter is left empty rather than guessed.
+**Quarterly results (fundamentals track).** Collected before each nightly round; shown to the `v2_fundamentals` tracks only (plan item 8), from their start date. `live/results.py` stores NSE's Integrated Filing (Financials) for the 41 stocks: the raw XBRL, every plain fact in it, and NSE's broadcast time. The table is append-only, and a revision is a new row. The first run, on 2026-10-31, stored 567 filings, about 5–7 quarters per stock. Banks and NBFCs file a different taxonomy (`InterestEarned` rather than `RevenueFromOperations`), so which fact counts as "revenue" is decided in step 2, not at collection time. Some files don't report a three-month quarter at all: Coal India's Sep-2026 file reports only the half year. In that case the quarter is left empty rather than guessed.
 
 **M2 — what kind of filing is it?** Each filing gets one of 15 categories (`live/classify.py`), decided by one question: *what new information does this give a holder?* A newspaper reprint of results is routine compliance, not results.
 
@@ -239,7 +239,7 @@ python -m scripts.label_filings score     # after filling labels/<rules-version>
    - **Contents:** the latest quarter's revenue (or *interest earned* for banks, labelled as such), net profit and basic EPS, plus year-on-year growth, four-quarter EPS and P/E on that evening's close. Each is shown only when its inputs exist: there's no growth off a loss, no P/E on negative EPS, and no four-quarter EPS across a gap. The block states the quarter, the publication date and how many days old it is.
    - **One statement series:** consolidated unless the standalone series is more recent, and the two are never mixed.
    - **Quarters filed only as year-to-date** (Coal India, Sep 2026) are derived by subtracting two filed figures and marked as derived. Otherwise they're left out.
-   - The block's figures join *MARKET DATA* under the same contract: a cited figure must be copied with its exact label, and L1 checks it mechanically.
+   - The block's figures join *MARKET DATA* under the same contract: a cited figure must be copied with its exact label, and L1 checks it mechanically. Labels are identifiers like MARKET DATA's (`net_profit_q_cr`, `interest_earned_yoy_pct`, `pe_4q`), with a one-line key in the block, because the brief parser reads labels as identifiers. The only contract change from v1 is "copied from MARKET DATA **or QUARTERLY RESULTS**"; v1's text is pinned by a hash test.
 
    Everything else matches the v1 tracks: the same price snapshot, filings, evidence rule, 41 stocks, outcome, warm-up end (2026-11-18), exclusions and hash chain. The block that was shown is stored with every call.
 

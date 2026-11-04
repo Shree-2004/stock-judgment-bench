@@ -4,8 +4,8 @@
     python -m scripts.live_results --symbols HEROMOTOCO,HDFCBANK
     python -m scripts.live_results --status               # what is stored, no fetch
 
-Also runs after each nightly ledger round (scripts.live_predict). Nothing reads
-these rows yet; step 2 builds the block a model would see.
+Also runs before each nightly ledger round (scripts.live_predict), which feeds
+the v2_fundamentals tracks from these rows via live/fundamentals.py.
 
 Exit codes: 0 ok, 1 every listing failed (recorded as failed in job_runs).
 """

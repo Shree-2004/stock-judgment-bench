@@ -18,6 +18,10 @@ figures never mix the two.
 `InterestEarned` and no revenue line. The label says which one was used, so a
 bank's interest income is never presented as "revenue".
 
+**Labels are identifiers** (`net_profit_q_cr`), like MARKET DATA's
+(`pct_off_52w_high`), because the brief parser reads KEY_FIGURES labels as
+identifiers and L1 looks them up verbatim. The block carries a one-line key.
+
 **Derived quarters.** A few filings carry only year-to-date figures (Coal India,
 Sep 2026: half year only). The quarter is then this filing's year-to-date minus
 the previous quarter's, both as filed, and the block says it was derived. If
@@ -34,7 +38,9 @@ from live.results import quarter_facts
 
 CRORE = 1e7
 # First match wins. The label travels with the number.
-REVENUE = (("Revenue from operations", "RevenueFromOperations"), ("Interest earned", "InterestEarned"))
+REVENUE = (("revenue_from_operations", "RevenueFromOperations"), ("interest_earned", "InterestEarned"))
+KEY = ("Key: _q = latest quarter, _cr = Rs crore, _yoy_pct = % change on the same quarter a year "
+       "earlier, eps_4q = sum of the last four quarters' EPS (Rs), pe_4q = price / eps_4q.")
 PROFIT = ("ProfitLossForPeriod", "ProfitLossForThePeriod")
 EPS = ("BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations",
        "BasicEarningsPerShareBeforeExtraordinaryItems",
@@ -99,15 +105,15 @@ class Fundamentals:
             return {}
         out = {}
         if q.revenue is not None:
-            out[f"{q.revenue_label}, latest quarter (Rs cr)"] = round(q.revenue / CRORE, 2)
+            out[f"{q.revenue_label}_q_cr"] = round(q.revenue / CRORE, 2)
         if q.profit is not None:
-            out["Net profit, latest quarter (Rs cr)"] = round(q.profit / CRORE, 2)
+            out["net_profit_q_cr"] = round(q.profit / CRORE, 2)
         if q.eps is not None:
-            out["EPS, latest quarter (Rs)"] = round(q.eps, 2)
-        for name, value in ((f"{q.revenue_label} growth YoY (%)", self.yoy("revenue")),
-                            ("Net profit growth YoY (%)", self.yoy("profit")),
-                            ("EPS, last 4 quarters (Rs)", self.eps_4q()),
-                            ("P/E on last 4 quarters' EPS", self.pe())):
+            out["eps_q"] = round(q.eps, 2)
+        for name, value in ((f"{q.revenue_label}_yoy_pct", self.yoy("revenue")),
+                            ("net_profit_yoy_pct", self.yoy("profit")),
+                            ("eps_4q", self.eps_4q()),
+                            ("pe_4q", self.pe())):
             if value is not None:
                 out[name] = round(value, 2)
         return out
@@ -120,6 +126,7 @@ class Fundamentals:
         lines = [f"Latest results: {q.label} (quarter ended {q.end:%d %b %Y}), {self.statement.lower()}, "
                  f"published {published:%d %b %Y} ({(as_of - published).days} days before {as_of:%d %b %Y})."
                  + (" Quarter derived from year-to-date figures as filed." if q.derived else "")]
+        lines.append(KEY)
         lines += [f"- {label}: {value:,.2f}" for label, value in self.figures().items()]
         prev = self._year_ago(q)
         if prev is None:
@@ -161,10 +168,13 @@ def _ytd(parsed: dict, end: date) -> dict:
 
 def load(conn: sqlite3.Connection, symbol: str, as_of_utc: str, close: float | None = None,
          keep: int = 8) -> Fundamentals:
-    """`as_of_utc` is an ISO timestamp; only filings published by then count."""
+    """`as_of_utc` is an ISO timestamp; only filings NSE had published, and
+    this store had collected, by then count. The second condition never binds
+    live (collection runs before the round) but keeps a later rebuild honest."""
     rows = conn.execute("""SELECT statement, quarter_end, published_at, facts_json FROM results
-                           WHERE symbol = ? AND published_at <= ? ORDER BY published_at""",
-                        (symbol, as_of_utc)).fetchall()
+                           WHERE symbol = ? AND published_at <= ? AND first_seen_at <= ?
+                           ORDER BY published_at""",
+                        (symbol, as_of_utc, as_of_utc)).fetchall()
     latest: dict[tuple[str, str], tuple[str, dict]] = {}
     for statement, quarter_end, published_at, facts_json in rows:     # later publication wins
         latest[(statement, quarter_end)] = (published_at, json.loads(facts_json))
