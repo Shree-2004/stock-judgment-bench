@@ -40,7 +40,7 @@ LOG = ROOT / "logs" / "live_predict.log"
 # for a track. Pinned here rather than read from .env, so editing an env var
 # can't quietly move a track onto another model.
 # A track with `from` runs only on sessions on or after that date; `from: None`
-# means not started. The v1 tracks come first, so if a provider's daily quota
+# means not started. The fundamentals tracks start 2026-11-10 (README plan item 8). The v1 tracks come first, so if a provider's daily quota
 # runs out it is a fundamentals track that comes up short, never v1.
 TRACKS = (
     {"provider": "gemini", "model": "gemini-3.1-flash-lite", "api_model": "gemini-3.1-flash-lite",
@@ -48,9 +48,9 @@ TRACKS = (
     {"provider": "groq", "model": "openai/gpt-oss-120b@low", "api_model": "openai/gpt-oss-120b",
      "prompt_version": "v1_structured"},
     {"provider": "gemini", "model": "gemini-3.1-flash-lite", "api_model": "gemini-3.1-flash-lite",
-     "prompt_version": "v2_fundamentals", "from": None},
+     "prompt_version": "v2_fundamentals", "from": date(2026, 11, 10)},
     {"provider": "groq", "model": "openai/gpt-oss-120b@low", "api_model": "openai/gpt-oss-120b",
-     "prompt_version": "v2_fundamentals", "from": None},
+     "prompt_version": "v2_fundamentals", "from": date(2026, 11, 10)},
 )
 
 

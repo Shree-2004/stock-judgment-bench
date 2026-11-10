@@ -247,6 +247,8 @@ python -m scripts.label_filings score     # after filling labels/<rules-version>
 
    **The block is frozen at its first v2 call.** Any later change, even a fixed bug, makes a new prompt version and a new track, never an edit of this one.
 
+   **Start: session 2026-11-10**, six warm-up sessions before 2026-11-18. Before it, on 2026-11-06, a 4-call smoke test (HEROMOTOCO and HDFCBANK on both models, session 2026-11-05) ran outside the ledger: 4/4 parsed and 30/30 cited figures matched, results figures included; HDFC Bank was cited as `interest_earned_q_cr`. It changed nothing in the block. One known effect: a model may cite a results figure as a DRIVERS line against a filing number (gpt-oss cited Hero's revenue growth to the results announcement), so L2 on these tracks is read with that in mind.
+
 **M4 — settlement** (`live/settle.py`, built before any call was due). Each evening after the round, every call whose 21-session window has closed is settled once into an append-only `outcomes` table. Settlement uses v1's `get_outcome` and `score_l3` unchanged. A test replays v1's cached briefs through M4's summariser and gets v1's published −0.0153 / t −0.65. Two details the plan didn't spell out were fixed before any outcome existed:
 - a scheduled primary session the ledger doesn't have (the machine was off) is reported as **missing**, never replaced by a neighbouring session
 - the secondary series' standard error is Newey-West at lag 20, matching the overlap of consecutive 21-day windows
